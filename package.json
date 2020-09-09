@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "parcel build src/werckmeister-components.ts"
+    "build": "parcel build src/werckmeister-components.ts",
+    "serve": "parcel test-snippet.html"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,7 @@
   },
   "homepage": "https://github.com/werckme/werckmeister-component#readme",
   "dependencies": {
+    "jquery": "^3.5.1",
     "werckmeister-ace-build": "^1.4.603"
   },
   "devDependencies": {

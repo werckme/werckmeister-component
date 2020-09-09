@@ -1,38 +1,39 @@
-import('../node_modules/werckmeister-ace-build/src-min-noconflict/ace');
-import('../node_modules/werckmeister-ace-build/src-min-noconflict/mode-sheet.js');
-import('../node_modules/werckmeister-ace-build/src-min-noconflict/theme-dracula.js');
-
-
+import { IEditor, createNewEditor } from "./editor/IEditor";
+import { AceEdCss } from "./AceEditorCss";
 
 
 const template = document.createElement('template');
 
 template.innerHTML = `
-  <textarea>
-  </textarea>
+<style>
+  #editor {
+    position: relative; 
+    border: 2px solid grey; 
+    height:600px; 
+    width:500px
+  }
+  ${AceEdCss}
+</style>
+<div id="editor">
+</div>
 `;
  
 class Snippet extends HTMLElement {
+  editor: IEditor;
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.appendChild(template.content.cloneNode(true));
-    setTimeout(this.onLoad.bind(this), 5000);
-    //console.log(ace);
+    const newNode = template.content.cloneNode(true);
+    this.shadowRoot.appendChild(newNode);
+    setTimeout(this.init.bind(this), 1000);
+    
   }
 
-  get textarea(): HTMLElement  {
-    return this.shadowRoot.querySelector('textarea')
-  }
-
-  addExternalScript(src: string) {
-    const el = document.createElement("script"); 
-    el.setAttribute("src", src); 
-    document.body.appendChild(el); 
-  }
-
-  onLoad() {
-    this.textarea.innerText = this.innerHTML;
+  init() {
+    this.editor = createNewEditor();
+    const el = this.shadowRoot.getElementById("editor");
+    this.editor.attach(el);
+    this.editor.setText(this.innerHTML);
   }
 }
 
