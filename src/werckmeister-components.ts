@@ -1,5 +1,11 @@
+import('../node_modules/werckmeister-ace-build/src-min-noconflict/ace');
+import('../node_modules/werckmeister-ace-build/src-min-noconflict/mode-sheet.js');
+import('../node_modules/werckmeister-ace-build/src-min-noconflict/theme-dracula.js');
+
+
+
+
 const template = document.createElement('template');
-declare const ace;
 
 template.innerHTML = `
   <textarea>
@@ -12,7 +18,7 @@ class Snippet extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.appendChild(template.content.cloneNode(true));
     setTimeout(this.onLoad.bind(this), 5000);
-    this.addExternalScripts();
+    //console.log(ace);
   }
 
   get textarea(): HTMLElement  {
@@ -25,16 +31,8 @@ class Snippet extends HTMLElement {
     document.body.appendChild(el); 
   }
 
-  addExternalScripts() {
-    this.addExternalScript("https://werckme.github.io/assets/mudcube/inc/jasmid/stream.js");
-    this.addExternalScript("https://raw.githubusercontent.com/ajaxorg/ace-builds/master/src-min/ace.js");
-    //this.addExternalScript("https://raw.githubusercontent.com/ajaxorg/ace-builds/master/src-min/mode-sheet.js");
-    this.addExternalScript("https://raw.githubusercontent.com/ajaxorg/ace-builds/master/src-min/theme-dracula.js");
-  }
-
   onLoad() {
     this.textarea.innerText = this.innerHTML;
-    console.log(ace)
   }
 }
 

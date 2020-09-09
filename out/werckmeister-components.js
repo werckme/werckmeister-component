@@ -22,7 +22,7 @@ class Snippet extends HTMLElement {
     addExternalScripts() {
         this.addExternalScript("https://werckme.github.io/assets/mudcube/inc/jasmid/stream.js");
         this.addExternalScript("https://raw.githubusercontent.com/ajaxorg/ace-builds/master/src-min/ace.js");
-        //this.addExternalScript("https://raw.githubusercontent.com/ajaxorg/ace-builds/master/src-min/mode-sheet.js");
+        this.addExternalScript("https://raw.githubusercontent.com/ajaxorg/ace-builds/master/src-min/mode-sheet.js");
         this.addExternalScript("https://raw.githubusercontent.com/ajaxorg/ace-builds/master/src-min/theme-dracula.js");
     }
     onLoad() {
