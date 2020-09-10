@@ -10,6 +10,9 @@ template.innerHTML = `
   #editor {
     border: 2px solid grey;
   }
+  .wm-marked {
+    border: 1px solid red;
+  }
   ${codemirrorCss}
 </style>
 <div id="editor">
