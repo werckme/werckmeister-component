@@ -19,8 +19,9 @@
   },
   "homepage": "https://github.com/werckme/werckmeister-component#readme",
   "dependencies": {
-    "jquery": "^3.5.1",
-    "werckmeister-ace-build": "^1.4.603"
+    "@types/codemirror": "0.0.98",
+    "codemirror": "^5.57.0",
+    "jquery": "^3.5.1"
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.4",
