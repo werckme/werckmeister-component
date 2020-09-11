@@ -1,8 +1,11 @@
 
 import { Editor } from './editor/Editor';
+import { WerckmeisterCompiler } from './compiler/Compiler';
 declare const require;
 const fs = require('fs');
 const codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8')
+require("babel-core/register");
+require("babel-polyfill");
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -19,6 +22,8 @@ template.innerHTML = `
 </div>
 `;
  
+const compiler = new WerckmeisterCompiler();
+
 class Snippet extends HTMLElement {
   editor: Editor;
   constructor() {
@@ -29,9 +34,15 @@ class Snippet extends HTMLElement {
     setTimeout(this.init.bind(this));
   }
 
-  init() {
+  async init() {
     const el = this.shadowRoot.getElementById("editor");
-    this.editor = new Editor(el, this.innerHTML);
+    const script = this.innerHTML;
+    this.editor = new Editor(el, script);
+    const document = await compiler.compile({
+      path: "noname.sheet",
+      data: script
+    });
+    console.log(document);
   }
 }
 
