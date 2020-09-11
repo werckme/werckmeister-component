@@ -6,7 +6,7 @@ var clone = function (o) {
 	return ret;
 };
 
-function Replayer(midiFile, timeWarp, eventProcessor, bpm) {
+export function Replayer(midiFile, timeWarp, eventProcessor, bpm) {
 	var trackStates = [];
 	var beatsPerMinute = bpm ? bpm : 120;
 	var bpmOverride = bpm ? true : false;

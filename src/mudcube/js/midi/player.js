@@ -6,6 +6,9 @@
 	----------------------------------------------------------
 */
 
+import { Replayer } from '../../inc/jasmid/replayer';
+import { MidiFile } from '../../inc/jasmid/midifile';
+
 if (typeof MIDI === 'undefined') MIDI = {};
 if (typeof MIDI.Player === 'undefined') MIDI.Player = {};
 

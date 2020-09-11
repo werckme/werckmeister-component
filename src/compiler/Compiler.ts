@@ -1,3 +1,5 @@
+import { Ticks } from "../shared/types";
+
 declare const require
 const WerckmeisterFactory = require('werckmeisterjs/werckmeister');
 
@@ -28,9 +30,39 @@ export interface IRequestFile {
     data: string;
 }
 
+export interface IWerckmeisterCompiledDocument {
+    eventInfos: {
+        pid: number,
+        sheetTime: Ticks,
+        sheetEventInfos: {
+            beginPosition: Ticks,
+            endPosition: Ticks,
+            sourceId: number
+        }[],
+    }[],
+    midi: {
+        bpm: number,
+        duration: Ticks,
+        midiData: string,
+        sources: {
+            sourceId: number,
+            path: string
+        }[],
+        warnings: {
+            message: string,
+            positionBegin: number,
+            sourceFile: string, 
+            sourceId: number
+        }[]
+    }
+}
+
 export class WerckmeisterCompiler {
     module: Promise<WerckmeisterModule>;
     private createCompileResult: (file: string) => number;
+    /**
+     * 
+     */
     constructor() {
         this.module = WerckmeisterFactory().then(async module => {
             await this.init(module);
@@ -38,11 +70,19 @@ export class WerckmeisterCompiler {
         });
     }
 
+    /**
+     * 
+     * @param module 
+     */
     async init(module: WerckmeisterModule) {
         this.prepareModule(module);
         await this.prepareFileSystem(module);
     }
 
+    /**
+     * 
+     * @param module 
+     */
     private prepareModule(module: WerckmeisterModule) {
         this.createCompileResult =
             module.cwrap('create_compile_result', 'number', ['string']) as (file: string) => number;
@@ -71,6 +111,10 @@ export class WerckmeisterCompiler {
         }
     }
 
+    /**
+     * 
+     * @param werckmeisterModule 
+     */
     private async prepareFileSystem(werckmeisterModule: WerckmeisterModule) {
         // const auxFiles:IRequestFile[] = _.cloneDeep(await this.auxiliaries);
         // const fs = werckmeisterModule.FS;
@@ -84,7 +128,11 @@ export class WerckmeisterCompiler {
         // }
     }
 
-    async compile(sheetFile: IRequestFile) {
+    /**
+     * 
+     * @param sheetFile 
+     */
+    async compile(sheetFile: IRequestFile): Promise<IWerckmeisterCompiledDocument> {
         const wm = await this.module;
         let strPtr: number = 0;
         try {

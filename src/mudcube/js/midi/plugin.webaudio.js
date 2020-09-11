@@ -6,6 +6,8 @@
 	----------------------------------------------------------
 */
 
+import { Base64Binary } from "../../inc/shim/Base64binary.js";
+
 (function(root) { 'use strict';
 
 	window.AudioContext && (function() {

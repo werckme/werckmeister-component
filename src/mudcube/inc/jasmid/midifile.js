@@ -1,8 +1,11 @@
+
+import { Stream } from './stream';
+
 /*
 class to parse the .mid file format
 (depends on stream.js)
 */
-function MidiFile(data) {
+export function MidiFile(data) {
 	function readChunk(stream) {
 		var id = stream.read(4);
 		var length = stream.readInt32();
@@ -195,7 +198,7 @@ function MidiFile(data) {
 		}
 	}
 	
-	stream = Stream(data);
+	var stream = Stream(data);
 	var headerChunk = readChunk(stream);
 	if (headerChunk.id != 'MThd' || headerChunk.length != 6) {
 		throw "Bad .mid file - header not found";
@@ -208,7 +211,7 @@ function MidiFile(data) {
 	if (timeDivision & 0x8000) {
 		throw "Expressing time division in SMTPE frames is not supported yet"
 	} else {
-		ticksPerBeat = timeDivision;
+		var ticksPerBeat = timeDivision;
 	}
 	
 	var header = {

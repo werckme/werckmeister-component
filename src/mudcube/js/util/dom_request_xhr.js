@@ -28,7 +28,7 @@ if (typeof MIDI === 'undefined') MIDI = {};
 (function(root) {
 
 	var util = root.util || (root.util = {});
-
+	root.client = {}
 	util.request = function(opts, onsuccess, onerror, onprogress) { 'use strict';
 		if (typeof opts === 'string') opts = {url: opts};
 		///
@@ -44,16 +44,16 @@ if (typeof MIDI === 'undefined') MIDI = {};
 		var onerror = onerror || opts.onerror;
 		var onprogress = onprogress || opts.onprogress;
 		///
-		if (typeof NodeFS !== 'undefined' && root.loc.isLocalUrl(url)) {
-			NodeFS.readFile(url, 'utf8', function(err, res) {
-				if (err) {
-					onerror && onerror(err);
-				} else {
-					onsuccess && onsuccess({responseText: res});
-				}
-			});
-			return;
-		}
+		// if (typeof NodeFS !== 'undefined' && root.loc.isLocalUrl(url)) {
+		// 	NodeFS.readFile(url, 'utf8', function(err, res) {
+		// 		if (err) {
+		// 			onerror && onerror(err);
+		// 		} else {
+		// 			onsuccess && onsuccess({responseText: res});
+		// 		}
+		// 	});
+		// 	return;
+		// }
 		///
 		var xhr = new XMLHttpRequest();
 		xhr.open(method, url, true);
@@ -135,12 +135,5 @@ if (typeof MIDI === 'undefined') MIDI = {};
 		xhr.send(data);
 		return xhr;
 	};
-
-	/// NodeJS
-	if (typeof module !== 'undefined' && module.exports) {
-		var NodeFS = require('fs');
-		XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-		module.exports = root.util.request;
-	}
 
 })(MIDI);
