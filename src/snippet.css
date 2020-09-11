@@ -1,0 +1,10 @@
+#editor {
+    border: 2px solid grey;
+}
+.wm-marked {
+    border: 1px solid red;
+}
+
+#btnPlay {
+    cursor: pointer;
+}

@@ -4,20 +4,17 @@ import { WerckmeisterCompiler } from './compiler/Compiler';
 declare const require;
 const fs = require('fs');
 const codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8')
+const snippetCss = fs.readFileSync('./src/snippet.css', 'utf8')
 require("babel-core/register");
 require("babel-polyfill");
 
 const template = document.createElement('template');
 template.innerHTML = `
 <style>
-  #editor {
-    border: 2px solid grey;
-  }
-  .wm-marked {
-    border: 1px solid red;
-  }
+  ${snippetCss}
   ${codemirrorCss}
 </style>
+<a id="btnPlay">Play</a>
 <div id="editor">
 </div>
 `;
@@ -34,10 +31,21 @@ class Snippet extends HTMLElement {
     setTimeout(this.init.bind(this));
   }
 
+  initListener() {
+    const playCta = this.shadowRoot.getElementById("btnPlay");
+    playCta.addEventListener("click", this.onPlayClicked.bind(this));
+  }
+
+
+  onPlayClicked() {
+    console.log("play");
+  }
+
   async init() {
     const el = this.shadowRoot.getElementById("editor");
     const script = this.innerHTML;
     this.editor = new Editor(el, script);
+    this.initListener();
     const document = await compiler.compile({
       path: "noname.sheet",
       data: script
