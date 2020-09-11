@@ -4,25 +4,25 @@ const WerckmeisterFactory = require('werckmeisterjs/werckmeister');
 
 interface WerckmeisterModule {
     cwrap: (name: string, returnType: string, args: any[]) => CallableFunction;
-    _free: (ptr:number) => void;
-    UTF8ToString: (strPtr:number) => string;
+    _free: (ptr: number) => void;
+    UTF8ToString: (strPtr: number) => string;
     FS: {
-      writeFile: (path: string, data: string) => void,
-      analyzePath: (path: string, dontResolveLastLink: boolean) => {
-        isRoot: boolean,
-        exists: boolean,
-        error: Error,
-        name: string,
-        path: string,
-        object: string,
-        parentExists: boolean,
-        parentPath: string,
-        parentObject: string
-      },
-      mkdir: (path: string) => void
+        writeFile: (path: string, data: string) => void,
+        analyzePath: (path: string, dontResolveLastLink: boolean) => {
+            isRoot: boolean,
+            exists: boolean,
+            error: Error,
+            name: string,
+            path: string,
+            object: string,
+            parentExists: boolean,
+            parentPath: string,
+            parentObject: string
+        },
+        mkdir: (path: string) => void
     };
-  }
-  
+}
+
 export interface IRequestFile {
     path: string;
     data: string;
@@ -44,34 +44,34 @@ export class WerckmeisterCompiler {
     }
 
     private prepareModule(module: WerckmeisterModule) {
-        this.createCompileResult = 
-          module.cwrap('create_compile_result', 'number', ['string']) as (file: string) => number;
-      }
-    
-      /**
-       * like mkdir -p
-       * @param file 
-       */
-      private mkdir_p(path: string, module: WerckmeisterModule) {
+        this.createCompileResult =
+            module.cwrap('create_compile_result', 'number', ['string']) as (file: string) => number;
+    }
+
+    /**
+     * like mkdir -p
+     * @param file 
+     */
+    private mkdir_p(path: string, module: WerckmeisterModule) {
         const segs = path.split('/');
-        const createdSegs:string[] = [];
+        const createdSegs: string[] = [];
         for (let idx = 0; idx < segs.length; ++idx) {
-          if (idx === segs.length - 1) {
-            // skip filename
-            break;
-          }
-          const seg = segs[idx];
-          createdSegs.push(seg);
-          const dirpath = createdSegs.join('/');
-          const stat = module.FS.analyzePath(dirpath, false);
-          if (stat.exists) {
-            continue;
-          }
-          module.FS.mkdir(dirpath);
+            if (idx === segs.length - 1) {
+                // skip filename
+                break;
+            }
+            const seg = segs[idx];
+            createdSegs.push(seg);
+            const dirpath = createdSegs.join('/');
+            const stat = module.FS.analyzePath(dirpath, false);
+            if (stat.exists) {
+                continue;
+            }
+            module.FS.mkdir(dirpath);
         }
-      }
-    
-      private async prepareFileSystem(werckmeisterModule: WerckmeisterModule) {
+    }
+
+    private async prepareFileSystem(werckmeisterModule: WerckmeisterModule) {
         // const auxFiles:IRequestFile[] = _.cloneDeep(await this.auxiliaries);
         // const fs = werckmeisterModule.FS;
         // for (const file of auxFiles) {
@@ -82,25 +82,23 @@ export class WerckmeisterCompiler {
         //     console.error(ex);
         //   }
         // }
-      }
+    }
 
-      async compile(sheetFile: IRequestFile) {
-        const wm =  await this.module;
+    async compile(sheetFile: IRequestFile) {
+        const wm = await this.module;
         let strPtr: number = 0;
         try {
-          wm.FS.writeFile(sheetFile.path, sheetFile.data);
-          strPtr = this.createCompileResult(sheetFile.path);
-        } catch(ex) {
-          console.error(ex)
+            wm.FS.writeFile(sheetFile.path, sheetFile.data);
+            strPtr = this.createCompileResult(sheetFile.path);
+        } catch (ex) {
+            console.error(ex)
         }
         const resultStr = wm.UTF8ToString(strPtr);
         wm._free(strPtr);
         const resultJson = JSON.parse(resultStr);
         if (resultJson.errorMessage) {
-          throw {error: resultJson};
+            throw { error: resultJson };
         }
         return resultJson;
-      }
     }
-    
 }
