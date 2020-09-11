@@ -53,7 +53,7 @@ export class Snippet extends HTMLElement {
 	/**
 	 * 
 	 */
-	async init() {
+	init() {
 		const el = this.shadowRoot.getElementById("editor");
 		const script = this.innerHTML;
 		this.editor = new Editor(el, script);
