@@ -2,7 +2,8 @@
     border: 2px solid grey;
 }
 .wm-marked {
-    background: yellow;
+    background: black;
+    color: white;
 }
 
 .wm-error {
@@ -29,6 +30,11 @@
 
 #fetching {
     display: none;
+}
+
+@keyframes spin { 100% { transform:rotate(360deg); } }
+#fetching svg {
+    animation:spin 2s linear infinite;
 }
 
 .wm-player-fetching #fetching {
