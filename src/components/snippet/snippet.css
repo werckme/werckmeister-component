@@ -12,3 +12,7 @@
 #btnPlay {
     cursor: pointer;
 }
+
+#btnStop {
+   display: none;
+}

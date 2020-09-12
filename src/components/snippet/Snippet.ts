@@ -22,7 +22,9 @@ ${snippetHtml}
 export class Snippet extends HTMLElement {
 	editor: Editor;
 	document: IWerckmeisterCompiledDocument;
+	snippetDocumentId: number;
 	eventMarkers: IMarker[] = [];
+	snippetName = "noname.sheet";
 	/**
 	 * 
 	 */
@@ -81,6 +83,9 @@ export class Snippet extends HTMLElement {
 			return;
 		}
 		for(const sheetEvent of treffer.sheetEvents) {
+			if (sheetEvent.sourceId !== this.snippetDocumentId) {
+				continue;
+			}
 			const marker = this.editor.setEventMarker(sheetEvent.beginPosition, sheetEvent.endPosition);
 			this.eventMarkers.push(marker);
 		}
@@ -92,15 +97,23 @@ export class Snippet extends HTMLElement {
 	async onPlayClicked(ev: MouseEvent) {
 		this.editor.clearMarkers();
 		const script = this.editor.getValue();
+		this.snippetDocumentId = null;
 		try {
 			this.document = await WM_Compiler.compile({
-				path: "noname.sheet",
+				path: this.snippetName,
 				data: script
 			});
 		} catch(ex) {
 			this.onError(ex.error);
 			return;
 		}
+		this.snippetDocumentId = _(this.document.midi.sources)
+			.find(source => source.path === `/${this.snippetName}`).sourceId;
+
+		if (!this.snippetDocumentId) {
+			console.error("werckmeister compiler coudl not assign main document")
+		}
+			
 		WM_Player.tempo = this.document.midi.bpm;
 		WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onEof.bind(this));
 	}

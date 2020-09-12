@@ -2,7 +2,9 @@ import { Ticks } from "../shared/types";
 
 declare const require
 const WerckmeisterFactory = require('werckmeisterjs/werckmeister');
-
+const fs = require('fs');
+const werckmeisterAuxiliaryFiles = JSON.parse(fs.readFileSync('./node_modules/werckmeisterjs/werckmeister-auxiliaries.json', 'utf8'));
+const _ = require ('lodash');
 
 interface WerckmeisterModule {
     cwrap: (name: string, returnType: string, args: any[]) => CallableFunction;
@@ -123,16 +125,16 @@ export class WerckmeisterCompiler {
      * @param werckmeisterModule 
      */
     private async prepareFileSystem(werckmeisterModule: WerckmeisterModule) {
-        // const auxFiles:IRequestFile[] = _.cloneDeep(await this.auxiliaries);
-        // const fs = werckmeisterModule.FS;
-        // for (const file of auxFiles) {
-        //   try {
-        //     this.mkdir_p(file.path, werckmeisterModule);
-        //     fs.writeFile(file.path, file.data);
-        //   } catch(ex) {
-        //     console.error(ex);
-        //   }
-        // }
+        const auxFiles:IRequestFile[] = _.cloneDeep(werckmeisterAuxiliaryFiles);
+        const fs = werckmeisterModule.FS;
+        for (const file of auxFiles) {
+          try {
+            this.mkdir_p(file.path, werckmeisterModule);
+            fs.writeFile(file.path, file.data);
+          } catch(ex) {
+            console.error(ex);
+          }
+        }
     }
 
     /**
