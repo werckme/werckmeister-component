@@ -9,10 +9,30 @@
     background: red;
 }
 
-#btnPlay {
+#btnPlay, #btnStop {
     cursor: pointer;
 }
 
-#btnStop {
-   display: none;
+.wm-state-playing #btnPlay {
+  display: none;
 }
+
+.wm-state-stopped #btnStop {
+    display: none;
+}
+
+.wm-player-fetching #btnStop
+, .wm-player-fetching #btnPlay
+{
+    display: none;
+}
+
+#fetching {
+    display: none;
+}
+
+.wm-player-fetching #fetching {
+    display: block;
+}
+
+

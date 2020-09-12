@@ -3,6 +3,7 @@ import { WM_Compiler, WM_Player } from '../../Global';
 import { IMidiplayerEvent } from '../../player/Player';
 import { EventType } from '../../shared/midiEvent';
 import { IWerckmeisterCompiledDocument, ICompilerError } from '../../compiler/Compiler';
+import { PlayerState } from '../../shared/player';
 const _ = require ('lodash');
 
 declare const require;
@@ -24,7 +25,25 @@ export class Snippet extends HTMLElement {
 	document: IWerckmeisterCompiledDocument;
 	snippetDocumentId: number;
 	eventMarkers: IMarker[] = [];
+	playingStateName = "wm-state-playing";
+	stoppedStateName = "wm-state-stopped";
 	snippetName = "noname.sheet";
+	private _playerIsFetching: boolean;
+
+	set playerIsFetching(val: boolean) {
+		this._playerIsFetching = val;
+		const snippetEl = this.shadowRoot.getElementById("wm-snippet");
+		if (val) {
+			snippetEl.classList.add("wm-player-fetching");
+		} else {
+			snippetEl.classList.remove("wm-player-fetching");
+		}
+	}
+
+	get playerIsFetching(): boolean {
+		return this._playerIsFetching;
+	}
+
 	/**
 	 * 
 	 */
@@ -42,6 +61,8 @@ export class Snippet extends HTMLElement {
 	initListener() {
 		const playCta = this.shadowRoot.getElementById("btnPlay");
 		playCta.addEventListener("click", this.onPlayClicked.bind(this));
+		const stopCta = this.shadowRoot.getElementById("btnStop");
+		stopCta.addEventListener("click", this.onStopClicked.bind(this));
 	}
 
 	/**
@@ -57,8 +78,32 @@ export class Snippet extends HTMLElement {
 	/**
 	 * 
 	 */
-	onEof() {
-		this.clearEventMarkers();
+	onPlayerState(old: PlayerState, new_: PlayerState) {
+		if (new_ === PlayerState.Stopped) {
+			this.clearEventMarkers();
+			this.setControlsStateStopped();
+		}
+		if (new_ === PlayerState.Playing) {
+			this.setControlsStatePlaying();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	setControlsStateStopped() {
+		const snippet = this.shadowRoot.getElementById("wm-snippet");
+		snippet.classList.remove(this.playingStateName);
+		snippet.classList.add(this.stoppedStateName);
+	}
+
+	/**
+	 * 
+	 */
+	setControlsStatePlaying() {
+		const snippet = this.shadowRoot.getElementById("wm-snippet");
+		snippet.classList.remove(this.stoppedStateName);
+		snippet.classList.add(this.playingStateName);
 	}
 
 	/**
@@ -98,6 +143,7 @@ export class Snippet extends HTMLElement {
 		this.editor.clearMarkers();
 		const script = this.editor.getValue();
 		this.snippetDocumentId = null;
+		this.playerIsFetching = true;
 		try {
 			this.document = await WM_Compiler.compile({
 				path: this.snippetName,
@@ -105,6 +151,7 @@ export class Snippet extends HTMLElement {
 			});
 		} catch(ex) {
 			this.onError(ex.error);
+			this.playerIsFetching = true;
 			return;
 		}
 		this.snippetDocumentId = _(this.document.midi.sources)
@@ -115,8 +162,17 @@ export class Snippet extends HTMLElement {
 		}
 			
 		WM_Player.tempo = this.document.midi.bpm;
-		WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onEof.bind(this));
+		await WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onPlayerState.bind(this));
+		this.playerIsFetching = false;
 	}
+
+		/**
+	 * 
+	 */
+	async onStopClicked(ev: MouseEvent) {
+		WM_Player.stop();
+	}
+
 
 	/**
 	 * 
@@ -135,6 +191,7 @@ export class Snippet extends HTMLElement {
 		const el = this.shadowRoot.getElementById("editor");
 		const script = this.innerHTML;
 		this.editor = new Editor(el, script);
+		this.setControlsStateStopped();
 		this.initListener();
 	}
 }
