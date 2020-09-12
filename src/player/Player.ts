@@ -39,10 +39,15 @@ export interface IMidiplayerEvent {
 	midiEvent: MidiEvent;
 }
 
+export type MidiEventCallback = (event: IMidiplayerEvent) => void;
+export type EofCallback = () => void;
+
 export class Player {
     private _player: any;
     private _currentMidifile: any;
     public tempo = 120;
+    private onMidiEvent: MidiEventCallback|null = null;
+    private onEof: EofCallback|null = null;
     /**
      * 
      * @param event 
@@ -70,6 +75,21 @@ export class Player {
      * @param playerEvent 
      */
     onEvent(playerEvent: any) {
+        const ticks = playerEvent.now - DeltaBugFixOffset;
+		const ppq = this._currentMidifile.header.ticksPerBeat;
+		const position = fixBrokenTicks(ticks, this.tempo) / ppq;
+		const midiEvent = new MidiEvent();
+		// tslint:disable-next-line: no-bitwise
+		midiEvent.eventType = playerEvent.message >> 4;
+		midiEvent.parameter1 = playerEvent.note;
+		midiEvent.parameter2 = playerEvent.velocity;
+        midiEvent.channel = playerEvent.channel;
+        if (this.onMidiEvent) {
+            this.onMidiEvent({position, midiEvent});
+        }
+		if (this.onEof && playerEvent.now >= playerEvent.end) {
+			this.onEof();
+		}
     }
 
     /**
@@ -90,17 +110,17 @@ export class Player {
      * @param midiBase64 
      * @param event needed to initiate sound output
      */
-    async play(midiBase64: string, event: MouseEvent | KeyboardEvent) {
-        console.log("init player");
+    async play(midiBase64: string, event: MouseEvent | KeyboardEvent, onMidiEvent: MidiEventCallback = null, onEof: EofCallback = null) {
         const player = await this.getPlayer(event);
         player.BPM = this.tempo;
-        console.log("done");
         try {
             await this.loadFile(midiBase64, player);
         } catch (ex) {
             this._currentMidifile = null;
             console.error(ex);
         }
+        this.onMidiEvent = onMidiEvent;
+        this.onEof = onEof;
 		player.stop();
         player.start();
 	}
@@ -110,7 +130,9 @@ export class Player {
      */
 	async stop() {
 		const player = await this.getPlayer(null);
-		player.stop();
+        player.stop();
+        this.onMidiEvent = null;
+        this.onEof = null;
 	}
 
 }

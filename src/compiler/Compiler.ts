@@ -25,6 +25,13 @@ interface WerckmeisterModule {
     };
 }
 
+export interface ICompilerError {
+    errorMessage: string;
+    positionBegin: number;
+    sourceFile: string;
+    sourceId: number;
+}
+
 export interface IRequestFile {
     path: string;
     data: string;

@@ -1,5 +1,9 @@
-import { Editor } from '../../editor/Editor';
+import { Editor, IMarker } from '../../editor/Editor';
 import { WM_Compiler, WM_Player } from '../../Global';
+import { IMidiplayerEvent } from '../../player/Player';
+import { EventType } from '../../shared/midiEvent';
+import { IWerckmeisterCompiledDocument, ICompilerError } from '../../compiler/Compiler';
+const _ = require ('lodash');
 
 declare const require;
 const fs = require('fs');
@@ -17,6 +21,8 @@ ${snippetHtml}
 `;
 export class Snippet extends HTMLElement {
 	editor: Editor;
+	document: IWerckmeisterCompiledDocument;
+	eventMarkers: IMarker[] = [];
 	/**
 	 * 
 	 */
@@ -36,19 +42,78 @@ export class Snippet extends HTMLElement {
 		playCta.addEventListener("click", this.onPlayClicked.bind(this));
 	}
 
+	/**
+	 * 
+	 * @param ev 
+	 */
+	onMidiEvent(ev: IMidiplayerEvent) {
+		if (ev.midiEvent.eventType === EventType.NoteOn) {
+			this.updateMarkers(ev.position);
+		}
+	}
+
+	/**
+	 * 
+	 */
+	onEof() {
+		this.clearEventMarkers();
+	}
+
+	/**
+	 * 
+	 */
+	clearEventMarkers() {
+		for(const mark of this.eventMarkers) {
+			mark.clear();
+		}
+	}
+
+	/**
+	 * 
+	 * @param time 
+	 */
+	updateMarkers(time: number) {
+		this.clearEventMarkers();
+		const treffer = _(this.document.eventInfos)
+			.map(x => ({diff: Math.abs(time - x.sheetTime), sheetEvents: x.sheetEventInfos}))
+			.minBy(x => x.diff);
+		if (!treffer) {
+			return;
+		}
+		for(const sheetEvent of treffer.sheetEvents) {
+			const marker = this.editor.setEventMarker(sheetEvent.beginPosition, sheetEvent.endPosition);
+			this.eventMarkers.push(marker);
+		}
+	}
 
 	/**
 	 * 
 	 */
 	async onPlayClicked(ev: MouseEvent) {
+		this.editor.clearMarkers();
 		const script = this.editor.getValue();
-		const document = await WM_Compiler.compile({
-			path: "noname.sheet",
-			data: script
-		});
-		WM_Player.tempo = document.midi.bpm;
-		WM_Player.play(document.midi.midiData, ev);
+		try {
+			this.document = await WM_Compiler.compile({
+				path: "noname.sheet",
+				data: script
+			});
+		} catch(ex) {
+			this.onError(ex.error);
+			return;
+		}
+		WM_Player.tempo = this.document.midi.bpm;
+		WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onEof.bind(this));
 	}
+
+	/**
+	 * 
+	 * @param error 
+	 */
+	onError(error: ICompilerError) {
+		this.editor.setErrorMarker(error.positionBegin, error.positionBegin + 1);
+		console.error(`werckmeister compiler error: ${error.errorMessage}`);
+	}
+
 
 	/**
 	 * 

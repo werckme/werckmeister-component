@@ -2,7 +2,11 @@
     border: 2px solid grey;
 }
 .wm-marked {
-    border: 1px solid red;
+    background: yellow;
+}
+
+.wm-error {
+    background: red;
 }
 
 #btnPlay {

@@ -24,6 +24,7 @@
   "homepage": "https://github.com/werckme/werckmeister-component#readme",
   "dependencies": {
     "@types/codemirror": "0.0.98",
+    "@types/lodash": "^4.14.161",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
     "codemirror": "^5.57.0",
