@@ -4,6 +4,7 @@ import { IMidiplayerEvent } from '../../player/Player';
 import { EventType } from '../../shared/midiEvent';
 import { IWerckmeisterCompiledDocument, ICompilerError } from '../../compiler/Compiler';
 import { PlayerState } from '../../shared/player';
+import { singleSnippetTemplate } from './templates';
 const _ = require ('lodash');
 
 declare const require;
@@ -12,32 +13,56 @@ const codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.
 const snippetCss = fs.readFileSync('./src/components/snippet/snippet.css', 'utf8');
 const snippetHtml = fs.readFileSync('./src/components/snippet/snippet.html', 'utf8');
 
+enum SnippetType {
+	/**
+	 * not a complete script, just on single voice
+	 */
+	single,
+	default
+}
+
 const template = document.createElement('template');
 template.innerHTML = `
 <style>
-  ${snippetCss}
   ${codemirrorCss}
+  ${snippetCss}
 </style>
 ${snippetHtml}
 `;
 export class Snippet extends HTMLElement {
+
 	editor: Editor;
 	document: IWerckmeisterCompiledDocument;
 	snippetDocumentId: number;
-	eventMarkers: IMarker[] = [];
-	playingStateName = "wm-state-playing";
-	stoppedStateName = "wm-state-stopped";
-	snippetName = "noname.sheet";
+	bpm: number = 120;
+	private type: SnippetType = SnippetType.default;
+	private eventMarkers: IMarker[] = [];
+	private playingStateName = "wm-state-playing";
+	private stoppedStateName = "wm-state-stopped";
+	private snippetName = "noname.sheet";
+	private scriptToSnippetCharOffset = 0;
 	private _playerIsFetching: boolean;
 
 	set playerIsFetching(val: boolean) {
 		this._playerIsFetching = val;
-		const snippetEl = this.shadowRoot.getElementById("wm-snippet");
+		const snippetEl = this.snippetElement;
 		if (val) {
 			snippetEl.classList.add("wm-player-fetching");
 		} else {
 			snippetEl.classList.remove("wm-player-fetching");
 		}
+	}
+
+	get snippetElement(): HTMLElement {
+		return this.shadowRoot.getElementById("wm-snippet")
+	}
+
+	get playButtonElement(): HTMLElement {
+		return this.shadowRoot.getElementById("btnPlay");
+	}
+
+	get stopButtonElement(): HTMLElement {
+		return this.shadowRoot.getElementById("btnStop");
 	}
 
 	get playerIsFetching(): boolean {
@@ -59,9 +84,9 @@ export class Snippet extends HTMLElement {
 	 * 
 	 */
 	initListener() {
-		const playCta = this.shadowRoot.getElementById("btnPlay");
+		const playCta = this.playButtonElement;
 		playCta.addEventListener("click", this.onPlayClicked.bind(this));
-		const stopCta = this.shadowRoot.getElementById("btnStop");
+		const stopCta = this.stopButtonElement;
 		stopCta.addEventListener("click", this.onStopClicked.bind(this));
 	}
 
@@ -92,7 +117,7 @@ export class Snippet extends HTMLElement {
 	 * 
 	 */
 	setControlsStateStopped() {
-		const snippet = this.shadowRoot.getElementById("wm-snippet");
+		const snippet = this.snippetElement;
 		snippet.classList.remove(this.playingStateName);
 		snippet.classList.add(this.stoppedStateName);
 	}
@@ -101,7 +126,7 @@ export class Snippet extends HTMLElement {
 	 * 
 	 */
 	setControlsStatePlaying() {
-		const snippet = this.shadowRoot.getElementById("wm-snippet");
+		const snippet = this.snippetElement;
 		snippet.classList.remove(this.stoppedStateName);
 		snippet.classList.add(this.playingStateName);
 	}
@@ -127,11 +152,12 @@ export class Snippet extends HTMLElement {
 		if (!treffer) {
 			return;
 		}
+		const charOffset = this.scriptToSnippetCharOffset;
 		for(const sheetEvent of treffer.sheetEvents) {
 			if (sheetEvent.sourceId !== this.snippetDocumentId) {
 				continue;
 			}
-			const marker = this.editor.setEventMarker(sheetEvent.beginPosition, sheetEvent.endPosition);
+			const marker = this.editor.setEventMarker(sheetEvent.beginPosition-charOffset, sheetEvent.endPosition-charOffset);
 			this.eventMarkers.push(marker);
 		}
 	}
@@ -139,9 +165,23 @@ export class Snippet extends HTMLElement {
 	/**
 	 * 
 	 */
+	getScriptText(): string {
+		const script = this.editor.getValue();
+		this.scriptToSnippetCharOffset = 0;
+		if (this.type === SnippetType.single) {
+			const rendered = singleSnippetTemplate(script, this.bpm); 
+			this.scriptToSnippetCharOffset = rendered.charOffset;
+			return rendered.script;
+		}
+		return script;
+	}
+
+	/**
+	 * 
+	 */
 	async onPlayClicked(ev: MouseEvent) {
 		this.editor.clearMarkers();
-		const script = this.editor.getValue();
+		const script = this.getScriptText();
 		this.snippetDocumentId = null;
 		this.playerIsFetching = true;
 		try {
@@ -158,7 +198,7 @@ export class Snippet extends HTMLElement {
 			.find(source => source.path === `/${this.snippetName}`).sourceId;
 
 		if (!this.snippetDocumentId) {
-			console.error("werckmeister compiler coudl not assign main document")
+			console.error("werckmeister compiler could not assign main document")
 		}
 			
 		WM_Player.tempo = this.document.midi.bpm;
@@ -166,7 +206,7 @@ export class Snippet extends HTMLElement {
 		this.playerIsFetching = false;
 	}
 
-		/**
+	/**
 	 * 
 	 */
 	async onStopClicked(ev: MouseEvent) {
@@ -183,15 +223,40 @@ export class Snippet extends HTMLElement {
 		console.error(`werckmeister compiler error: ${error.errorMessage}`);
 	}
 
+	/**
+	 * 
+	 */
+	normalizeScript(text: string): string {
+		return text.replace(/\<!--\[CDATA\[\s*/g, "")
+			.replace(/\]\]--\>\s*/g, "");
+	}
 
 	/**
 	 * 
 	 */
 	init() {
 		const el = this.shadowRoot.getElementById("editor");
-		const script = this.innerHTML;
+		const script = this.normalizeScript(this.innerHTML);
 		this.editor = new Editor(el, script);
+		this.readAttributes();
 		this.setControlsStateStopped();
 		this.initListener();
+	}
+
+	readAttributes() {
+		const typeAttr = this.attributes.getNamedItem("type");
+		if (typeAttr && typeAttr.value === "single") {
+			this.type = SnippetType.single;
+		}
+		const tempoAttr = this.attributes.getNamedItem("tempo");
+		if (tempoAttr) {
+			this.bpm = Number.parseFloat(tempoAttr.value);
+		}
+		const styleAttr = this.attributes.getNamedItem("style");
+		if (styleAttr) {
+			const snippet = this.snippetElement;
+			var completeStyle = this.style.cssText;
+			snippet.style.cssText = completeStyle;
+		}
 	}
 }

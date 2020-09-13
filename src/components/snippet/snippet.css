@@ -1,6 +1,18 @@
 #editor {
     border: 2px solid grey;
+    width: 100%;
+    height: 100%;
 }
+
+.CodeMirror {
+    width: 100%;
+    height: 100%;
+}
+
+#wm-snippet {
+    margin-bottom: 1.5em;
+}
+
 .wm-marked {
     background: black;
     color: white;
@@ -41,4 +53,7 @@
     display: block;
 }
 
+.icon {
+    vertical-align: top;
+}
 
