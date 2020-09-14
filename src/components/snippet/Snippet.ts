@@ -226,9 +226,13 @@ export class Snippet extends HTMLElement {
 	/**
 	 * 
 	 */
-	normalizeScript(text: string): string {
-		return text.replace(/\<!--\[CDATA\[\s*/g, "")
-			.replace(/\]\]--\>\s*/g, "");
+	getScriptContent(text: string): string {
+		const cDataMatch = text.match(/\[CDATA\[(.*)\]\]/s);
+		console.log(cDataMatch)
+		if (cDataMatch) {
+			return cDataMatch[1];
+		}
+		return text;
 	}
 
 	/**
@@ -236,7 +240,7 @@ export class Snippet extends HTMLElement {
 	 */
 	init() {
 		const el = this.shadowRoot.getElementById("editor");
-		const script = this.normalizeScript(this.innerHTML);
+		const script = this.getScriptContent(this.innerHTML);
 		this.editor = new Editor(el, script);
 		this.readAttributes();
 		this.setControlsStateStopped();
