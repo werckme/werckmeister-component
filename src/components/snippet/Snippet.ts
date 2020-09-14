@@ -244,19 +244,18 @@ export class Snippet extends HTMLElement {
 	}
 
 	readAttributes() {
-		const typeAttr = this.attributes.getNamedItem("type");
+		const typeAttr = this.attributes.getNamedItem("wm-type");
 		if (typeAttr && typeAttr.value === "single") {
 			this.type = SnippetType.single;
 		}
-		const tempoAttr = this.attributes.getNamedItem("tempo");
+		const tempoAttr = this.attributes.getNamedItem("wm-tempo");
 		if (tempoAttr) {
 			this.bpm = Number.parseFloat(tempoAttr.value);
 		}
-		const styleAttr = this.attributes.getNamedItem("style");
+		const styleAttr = this.attributes.getNamedItem("wm-style");
 		if (styleAttr) {
 			const snippet = this.snippetElement;
-			var completeStyle = this.style.cssText;
-			snippet.style.cssText = completeStyle;
+			snippet.setAttribute("style", styleAttr.value);
 		}
 	}
 }
