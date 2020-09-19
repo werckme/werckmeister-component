@@ -2,10 +2,11 @@
   "name": "werckmeister-components",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "werckmeister-components.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "parcel build src/werckmeister-components.ts",
+    "build": "parcel build --no-source-maps src/werckmeister-components.ts",
+    "deploy": "rm -rf dist && npm run build && cp package.json dist",
     "serve": "parcel test-snippet.html"
   },
   "staticFiles": {

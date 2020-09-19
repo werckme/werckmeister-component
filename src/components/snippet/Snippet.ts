@@ -171,9 +171,9 @@ export class Snippet extends HTMLElement {
 		if (this.type === SnippetType.single) {
 			const rendered = singleSnippetTemplate(script, this.bpm); 
 			this.scriptToSnippetCharOffset = rendered.charOffset;
-			return rendered.script;
+			return rendered.script.trim();
 		}
-		return script;
+		return script.trim();
 	}
 
 	/**
@@ -182,6 +182,9 @@ export class Snippet extends HTMLElement {
 	async onPlayClicked(ev: MouseEvent) {
 		this.editor.clearMarkers();
 		const script = this.getScriptText();
+		if (!script) {
+			return;
+		}
 		this.snippetDocumentId = null;
 		this.playerIsFetching = true;
 		try {
@@ -227,6 +230,10 @@ export class Snippet extends HTMLElement {
 	 * 
 	 */
 	getScriptContent(text: string): string {
+		const dataAttr = this.attributes.getNamedItem("wm-data");
+		if(dataAttr) {
+			return atob(dataAttr.value);
+		}
 		const cDataMatch = text.match(/\[CDATA\[(.*)\]\]/s);
 		if (cDataMatch) {
 			return cDataMatch[1];
