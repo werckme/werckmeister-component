@@ -228,7 +228,6 @@ export class Snippet extends HTMLElement {
 	 */
 	getScriptContent(text: string): string {
 		const cDataMatch = text.match(/\[CDATA\[(.*)\]\]/s);
-		console.log(cDataMatch)
 		if (cDataMatch) {
 			return cDataMatch[1];
 		}
