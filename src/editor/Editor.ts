@@ -1,6 +1,6 @@
 declare const require;
 const CodeMirror = require("codemirror/lib/codemirror.js");
-require("./sheet-mode");
+require("./SheetMode");
 
 export interface IMarker {
     /**
