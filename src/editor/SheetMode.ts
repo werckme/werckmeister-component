@@ -2,14 +2,12 @@ declare const require;
 const CodeMirror = require("codemirror/lib/codemirror.js");
 require("codemirror/addon/mode/simple.js");
 
-console.log(CodeMirror);
 
 CodeMirror.defineSimpleMode("simplemode", {
     // The start state contains the rules that are intially used
     start: [
         { regex: /"(?:[^\\]|\\.)*?(?:"|$)/, token: "string" },
         { regex: /(?:\w+):/, token: "keyword", next: "wmCommandValues"},
-        // TODO:note events { regex: /true|false|null|undefined/, token: "atom" },
         { regex: /\\[pf]{1,5}/,  token: "atom"},
         { regex: /--.*/, token: "comment" },
     ],

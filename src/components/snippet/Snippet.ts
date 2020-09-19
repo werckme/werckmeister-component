@@ -74,6 +74,10 @@ export class Snippet extends HTMLElement {
 	 */
 	constructor() {
 		super();
+		this.createElement();
+	}
+
+	async createElement() {
 		this.attachShadow({ mode: 'open' });
 		const newNode = template.content.cloneNode(true);
 		this.shadowRoot.appendChild(newNode);
@@ -248,12 +252,21 @@ export class Snippet extends HTMLElement {
 		const el = this.shadowRoot.getElementById("editor");
 		const script = this.getScriptContent(this.innerHTML);
 		this.editor = new Editor(el, script);
-		this.readAttributes();
 		this.setControlsStateStopped();
 		this.initListener();
+		this.readAttributes()
 	}
 
-	readAttributes() {
+	private async loadExternalCss(url: string) {
+		const cssRequest = await fetch(url);
+		const cssText = await cssRequest.text();
+		const styleEl = document.createElement("style");
+		styleEl.innerText = cssText;
+		let x = this.shadowRoot.appendChild(styleEl);
+		console.log(x)
+	}
+
+	async readAttributes() {
 		const typeAttr = this.attributes.getNamedItem("wm-type");
 		if (typeAttr && typeAttr.value === "single") {
 			this.type = SnippetType.single;
@@ -267,5 +280,9 @@ export class Snippet extends HTMLElement {
 			const snippet = this.snippetElement;
 			snippet.setAttribute("style", styleAttr.value);
 		}
+		const cssRefAttr = this.attributes.getNamedItem("wm-css-url");
+		if (cssRefAttr) {
+			this.loadExternalCss(cssRefAttr.value);
+		}		
 	}
 }

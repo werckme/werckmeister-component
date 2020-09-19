@@ -7,10 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build --no-source-maps src/werckmeister-components.ts",
     "deploy": "rm -rf dist && npm run build && cp package.json dist",
-    "serve": "parcel test-snippet.html"
+    "serve": "parcel test-snippet.html editor.css"
   },
   "staticFiles": {
-    "staticPath": "./node_modules/werckmeisterjs",
+    "staticPath": ["./node_modules/werckmeisterjs"],
     "watcherGlob": "*.wasm"
   },
   "repository": {
