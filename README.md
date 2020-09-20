@@ -1,3 +1,4 @@
 # werckmeister-component
 
-https://jsfiddle.net/ek92ugdL/10/
+## Demo
+https://jsfiddle.net/d4b69fem/1/
