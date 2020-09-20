@@ -5,11 +5,15 @@ import { EventType } from '../../shared/midiEvent';
 import { IWerckmeisterCompiledDocument, ICompilerError } from '../../compiler/Compiler';
 import { PlayerState } from '../../shared/player';
 import { singleSnippetTemplate } from './templates';
+import { fetchText } from '../../shared/http';
 const _ = require ('lodash');
+
+const CodemirrorTheme = "dracula";
 
 declare const require;
 const fs = require('fs');
-const codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
+var codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
+codemirrorCss += fs.readFileSync('./node_modules/codemirror/theme/' + CodemirrorTheme + '.css', 'utf8');
 const snippetCss = fs.readFileSync('./src/components/snippet/snippet.css', 'utf8');
 const snippetHtml = fs.readFileSync('./src/components/snippet/snippet.html', 'utf8');
 
@@ -55,6 +59,10 @@ export class Snippet extends HTMLElement {
 
 	get snippetElement(): HTMLElement {
 		return this.shadowRoot.getElementById("wm-snippet")
+	}
+
+	get messagesElement(): HTMLElement {
+		return this.shadowRoot.getElementById("messages")
 	}
 
 	get playButtonElement(): HTMLElement {
@@ -161,7 +169,7 @@ export class Snippet extends HTMLElement {
 			if (sheetEvent.sourceId !== this.snippetDocumentId) {
 				continue;
 			}
-			const marker = this.editor.setEventMarker(sheetEvent.beginPosition-charOffset, sheetEvent.endPosition-charOffset);
+			const marker = this.editor.setEventMarker(sheetEvent.beginPosition-charOffset, sheetEvent.beginPosition-charOffset + 1);
 			this.eventMarkers.push(marker);
 		}
 	}
@@ -171,6 +179,9 @@ export class Snippet extends HTMLElement {
 	 */
 	getScriptText(): string {
 		const script = this.editor.getValue();
+		if (!script.trim()) {
+			return "";
+		}
 		this.scriptToSnippetCharOffset = 0;
 		if (this.type === SnippetType.single) {
 			const rendered = singleSnippetTemplate(script, this.bpm); 
@@ -182,56 +193,99 @@ export class Snippet extends HTMLElement {
 
 	/**
 	 * 
+	 * @param ev 
 	 */
 	async onPlayClicked(ev: MouseEvent) {
+		try {
+			this.playerIsFetching = true;
+			await this.startPlayer(ev);
+		} catch(ex) {
+			this.onError(ex.error);
+			return;
+		} finally {
+			this.playerIsFetching = false;
+		}
+	}
+
+	/**
+	 * 
+	 * @param ev 
+	 */
+	async startPlayer(ev: MouseEvent) {
 		this.editor.clearMarkers();
+		this.clearMessages();
 		const script = this.getScriptText();
 		if (!script) {
 			return;
 		}
 		this.snippetDocumentId = null;
 		this.playerIsFetching = true;
-		try {
-			this.document = await WM_Compiler.compile({
-				path: this.snippetName,
-				data: script
-			});
-		} catch(ex) {
-			this.onError(ex.error);
-			this.playerIsFetching = true;
-			return;
-		}
+		this.document = await WM_Compiler.compile({
+			path: this.snippetName,
+			data: script
+		});
 		this.snippetDocumentId = _(this.document.midi.sources)
 			.find(source => source.path === `/${this.snippetName}`).sourceId;
 
 		if (!this.snippetDocumentId) {
 			console.error("werckmeister compiler could not assign main document")
 		}
-			
 		WM_Player.tempo = this.document.midi.bpm;
 		await WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onPlayerState.bind(this));
-		this.playerIsFetching = false;
 	}
 
 	/**
 	 * 
+	 * @param ev 
 	 */
 	async onStopClicked(ev: MouseEvent) {
 		WM_Player.stop();
 	}
 
+	// workaround: error messages pushes editor down and the following content will be overlapped
+	editorOverlappingWorkaround(size: number) {
+		if (!size) {
+			this.snippetElement.style.marginBottom = "";
+			return;
+		}
+		this.snippetElement.style.marginBottom = `${size}px`;
+	}
+
+	/**
+	 * 
+	 * @param message 
+	 * @param type 
+	 */
+	setMessage(message: string, type:string = "info") {
+		const el = this.messagesElement;
+		el.innerHTML = `<span class="${type}">${message}</span>`
+		this.editorOverlappingWorkaround(el.clientHeight*2);
+		
+	}
+
+	/**
+	 * 
+	 */
+	clearMessages() {
+		const el = this.messagesElement;
+		el.innerHTML = "";
+		this.editorOverlappingWorkaround(0);
+	}
 
 	/**
 	 * 
 	 * @param error 
 	 */
 	onError(error: ICompilerError) {
-		this.editor.setErrorMarker(error.positionBegin, error.positionBegin + 1);
+		const charOffset = this.scriptToSnippetCharOffset
+		this.editor.setErrorMarker(error.positionBegin - charOffset, error.positionBegin - charOffset + 1);
 		console.error(`werckmeister compiler error: ${error.errorMessage}`);
+		this.setMessage(`${error.errorMessage}`, "error");
 	}
 
 	/**
 	 * 
+	 * @param text 
 	 */
 	getScriptContent(text: string): string {
 		const dataAttr = this.attributes.getNamedItem("wm-data");
@@ -251,21 +305,26 @@ export class Snippet extends HTMLElement {
 	init() {
 		const el = this.shadowRoot.getElementById("editor");
 		const script = this.getScriptContent(this.innerHTML);
-		this.editor = new Editor(el, script);
+		this.editor = new Editor(el, script, { theme: CodemirrorTheme });
 		this.setControlsStateStopped();
 		this.initListener();
 		this.readAttributes()
 	}
 
+	/**
+	 * 
+	 * @param url 
+	 */
 	private async loadExternalCss(url: string) {
-		const cssRequest = await fetch(url);
-		const cssText = await cssRequest.text();
+		const cssText = await fetchText(url);
 		const styleEl = document.createElement("style");
 		styleEl.innerText = cssText;
 		let x = this.shadowRoot.appendChild(styleEl);
-		console.log(x)
 	}
 
+	/**
+	 * 
+	 */
 	async readAttributes() {
 		const typeAttr = this.attributes.getNamedItem("wm-type");
 		if (typeAttr && typeAttr.value === "single") {

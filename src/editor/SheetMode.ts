@@ -8,6 +8,7 @@ CodeMirror.defineSimpleMode("simplemode", {
     start: [
         { regex: /"(?:[^\\]|\\.)*?(?:"|$)/, token: "string" },
         { regex: /(?:\w+):/, token: "keyword", next: "wmCommandValues"},
+        { regex: /using/, token: "keyword"},
         { regex: /\\[pf]{1,5}/,  token: "atom"},
         { regex: /--.*/, token: "comment" },
     ],
