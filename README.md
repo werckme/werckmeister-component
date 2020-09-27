@@ -7,7 +7,7 @@ A [web component](https://en.wikipedia.org/wiki/Web_Components) which allows you
 * include the javascript file
 
 ```html
-<script src="https://unpkg.com/werckmeister-components@^1.0.0/werckmeister-components.js"></script>
+<script src="https://unpkg.com/werckmeister-components@~1.0.0/werckmeister-components.js"></script>
 ```
 * embed your snippet
 
@@ -29,7 +29,7 @@ instrument: lead;
 ```
 
 ## Demo
-https://jsfiddle.net/d4b69fem/1/
+https://jsfiddle.net/o8tq4ghp/
 
 ## Options
 
@@ -37,14 +37,14 @@ https://jsfiddle.net/d4b69fem/1/
 can be either `default` or `single`. `single` means that the input is treated as one singe voice line such as `c d e f g`.
 In `default`mode the input has to be a valid `werckmeister` source.
 
-https://jsfiddle.net/vbe6frtm
+https://jsfiddle.net/6dmoun41/
 
 ### `wm-tempo`
 Set the tempo of an snippet.
 ### `wm-style`
 Inline css rules to set up the apperance of the snippet.
-https://jsfiddle.net/p7gazcdb/
+https://jsfiddle.net/aw702vcg/
 
 ### `wm-css-url`
 Set an url of an css file, to override the default css of the snippet.
-https://jsfiddle.net/pzahxywv/
+https://jsfiddle.net/y53647x8/
