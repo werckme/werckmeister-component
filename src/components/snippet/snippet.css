@@ -108,3 +108,10 @@
     vertical-align: top;
 }
 
+.whomai {
+    display: block;
+    width: 100%;
+    text-align: right;
+    font-size: 13px;
+    font-style: italic;
+}
