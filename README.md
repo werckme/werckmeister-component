@@ -12,7 +12,7 @@ https://jsfiddle.net/ek92ugdL/10/
 <script>
     const workspace = document.getElementsById('workspace');
     const ed1 = document.getElementsById(ed1);
-    workspace.addEditor(ed1);
+    workspace.registerEditor(ed1);
     function startPlayback() {
         workspace.playSheet();
     }

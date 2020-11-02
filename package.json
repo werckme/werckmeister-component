@@ -7,10 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build --no-source-maps src/werckmeister-components.ts",
     "deploy": "rm -rf dist && npm run build && cp package.json dist",
-    "serve": "parcel test-snippet.html editor.css"
+    "serve-snippet": "parcel test-snippet.html editor.css",
+    "serve-workspace": "parcel test-workspace.html editor.css"
   },
   "staticFiles": {
-    "staticPath": ["./node_modules/werckmeisterjs"],
+    "staticPath": [
+      "./node_modules/werckmeisterjs"
+    ],
     "watcherGlob": "*.wasm"
   },
   "repository": {
@@ -25,7 +28,7 @@
   "homepage": "https://github.com/werckme/werckmeister-component#readme",
   "dependencies": {
     "@types/codemirror": "0.0.98",
-    "@types/lodash": "^4.14.161",
+    "@types/lodash": "^4.14.164",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
     "codemirror": "^5.57.0",

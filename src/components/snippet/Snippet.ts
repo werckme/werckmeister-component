@@ -192,7 +192,7 @@ export class Snippet extends HTMLElement {
 		this.snippetDocumentId = null;
 		this.playerIsFetching = true;
 		try {
-			this.document = await WM_Compiler.compile({
+			this.document = await WM_Compiler.compileSingleSheetFile({
 				path: this.snippetName,
 				data: script
 			});
@@ -263,7 +263,6 @@ export class Snippet extends HTMLElement {
 		const styleEl = document.createElement("style");
 		styleEl.innerText = cssText;
 		let x = this.shadowRoot.appendChild(styleEl);
-		console.log(x)
 	}
 
 	async readAttributes() {

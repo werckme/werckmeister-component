@@ -39,15 +39,17 @@ export interface IRequestFile {
     data: string;
 }
 
+export interface SheetEventInfo {
+    beginPosition: Ticks,
+    endPosition: Ticks,
+    sourceId: number
+}
+
 export interface IWerckmeisterCompiledDocument {
     eventInfos: {
         pid: number,
         sheetTime: Ticks,
-        sheetEventInfos: {
-            beginPosition: Ticks,
-            endPosition: Ticks,
-            sourceId: number
-        }[],
+        sheetEventInfos: SheetEventInfo[],
     }[],
     midi: {
         bpm: number,
@@ -141,12 +143,49 @@ export class WerckmeisterCompiler {
      * 
      * @param sheetFile 
      */
-    async compile(sheetFile: IRequestFile): Promise<IWerckmeisterCompiledDocument> {
+    async compileSingleSheetFile(sheetFile: IRequestFile): Promise<IWerckmeisterCompiledDocument> {
         const wm = await this.module;
         let strPtr: number = 0;
         try {
             wm.FS.writeFile(sheetFile.path, sheetFile.data);
             strPtr = this.createCompileResult(sheetFile.path);
+        } catch (ex) {
+            console.error(ex)
+        }
+        const resultStr = wm.UTF8ToString(strPtr);
+        wm._free(strPtr);
+        const resultJson = JSON.parse(resultStr);
+        if (resultJson.errorMessage) {
+            throw { error: resultJson };
+        }
+        return resultJson;
+    }
+
+        /**
+     * 
+     * @param sheetFile 
+     */
+    async compile(sheetFiles: IRequestFile[]): Promise<IWerckmeisterCompiledDocument> {
+        if (!sheetFiles || sheetFiles.length === 0) {
+            throw new Error("no content to compile");
+        }
+        const wm = await this.module;
+        let strPtr: number = 0;
+        try {
+            let mainSheet:IRequestFile = null;
+            for(const sheetFile of sheetFiles) {
+                if (!sheetFile.path || !sheetFile.path.trim()) {
+                    throw new Error("sheet file has no path");
+                }
+                wm.FS.writeFile(sheetFile.path, sheetFile.data);
+                if (sheetFile.path.trim().endsWith('.sheet')) {
+                    mainSheet = sheetFile;
+                }
+            }
+            if (!mainSheet) {
+                throw new Error("missing main sheet file (.sheet)");
+            }
+            strPtr = this.createCompileResult(mainSheet.path);
         } catch (ex) {
             console.error(ex)
         }
