@@ -187,5 +187,13 @@ export class Workspace extends HTMLElement {
     
     public registerEditor(editor: Editor) {
         this.editors.push(editor);
+	}
+	
+	public unregisterEditor(editor: Editor) {
+		const idx = this.editors.indexOf(editor);
+		if (idx < 0) {
+			return;
+		}
+		this.editors.splice(idx, 1);
     }
 }
