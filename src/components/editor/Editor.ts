@@ -1,4 +1,4 @@
-import { SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
+import { ICompilerError, SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
 import { Editor as EditorImpl, IMarker } from '../../editor/Editor';
 const _ = require ('lodash');
 
@@ -36,9 +36,7 @@ export class Editor extends HTMLElement {
 	 * 
 	 */
 	public clearAllMarkers() {
-		for(const mark of this.eventMarkers) {
-			mark.clear();
-		}
+		this.editor.clearMarkers();
 	}
 
 	/**
@@ -71,6 +69,14 @@ export class Editor extends HTMLElement {
 		return script.trim();
 	}
 
+	/**
+	 * 
+	 * @param error 
+	 */
+	setError(error: ICompilerError) {
+		this.clearAllMarkers();
+		this.editor.setErrorMarker(error.positionBegin, error.positionBegin + 1);
+	}
 
 	/**
 	 * 

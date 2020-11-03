@@ -126,7 +126,8 @@ export class Workspace extends HTMLElement {
             const files = this.editors.map(editor => ({
                 path: editor.filename,
                 data: editor.getScriptText()
-            }));
+			}));
+			this.clearAllEditorMarkers();
             this.document = await WM_Compiler.compile(files);
             this.updateSourceIdMap(this.document);
 		} catch(ex) {
@@ -163,6 +164,11 @@ export class Workspace extends HTMLElement {
             return;
         }
 		console.error(`werckmeister compiler error: ${error.errorMessage}`);
+		const editor = this.sourceIdEditorMap.get(error.sourceId);
+		if (!editor) {
+			return;
+		}
+		editor.setError(error);
 	}
 
 
