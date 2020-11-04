@@ -71,6 +71,13 @@ export class Editor extends HTMLElement {
 
 	/**
 	 * 
+	 */
+	setScriptText(text: string) {
+		this.editor.setValue(text);
+	}
+
+	/**
+	 * 
 	 * @param error 
 	 */
 	setError(error: ICompilerError) {

@@ -36,6 +36,13 @@ export class Editor {
     /**
      * 
      */
+    setValue(text: string) {
+        this.editor.setValue(text);
+    }
+
+    /**
+     * 
+     */
     clearMarkers() {
         const allMarks = this.editor.getAllMarks();
         for(const mark of allMarks) {
