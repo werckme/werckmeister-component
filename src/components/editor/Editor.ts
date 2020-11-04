@@ -141,4 +141,8 @@ export class Editor extends HTMLElement {
 			this.eventMarkers.push(marker);
 		}
 	}
+
+	public update() {
+		this.editor.update();
+	}
 }

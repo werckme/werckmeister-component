@@ -79,4 +79,11 @@ export class Editor {
     setErrorMarker(from: DocumentIndex, to: DocumentIndex): IMarker {
         return this.setMarker(from, to, this.errorClass)
     }
+
+    /**
+     * 
+     */
+    update() {
+        this.editor.refresh();
+    }
 }
