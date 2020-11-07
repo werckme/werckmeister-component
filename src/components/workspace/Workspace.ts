@@ -21,7 +21,9 @@ ${editorHtml}
 `;
 export class Workspace extends HTMLElement {
 	document: IWerckmeisterCompiledDocument;
-    bpm: number = 120;
+	bpm: number = 120;
+	public onError = (error: ICompilerError) => {};
+	public onCompiled = (document: IWerckmeisterCompiledDocument) => {};
     private _playerIsFetching: boolean;
     private editors: Editor[] = [];
     private sourceIdEditorMap: Map<number, Editor> = new Map<number, Editor>();
@@ -128,10 +130,11 @@ export class Workspace extends HTMLElement {
                 data: editor.getScriptText()
 			}));
 			this.clearAllEditorMarkers();
-            this.document = await WM_Compiler.compile(files);
+			this.document = await WM_Compiler.compile(files);
+			this.onCompiled(this.document);
             this.updateSourceIdMap(this.document);
 		} catch(ex) {
-			this.onError(ex.error);
+			this._onError(ex.error);
 			this.playerIsFetching = true;
 			return;
 		}
@@ -158,7 +161,7 @@ export class Workspace extends HTMLElement {
 	 * 
 	 * @param error 
 	 */
-	private onError(error: ICompilerError | Error) {
+	private _onError(error: ICompilerError | Error) {
         if (error instanceof Error) {
             console.error(`werckmeister compiler error: ${error}`);
             return;
@@ -169,6 +172,7 @@ export class Workspace extends HTMLElement {
 			return;
 		}
 		editor.setError(error);
+		this.onError(error);
 	}
 
 
@@ -182,7 +186,10 @@ export class Workspace extends HTMLElement {
 
 
 	private async readAttributes() {
-	
+		const onError = this.attributes.getNamedItem("wm-onerror");
+		if (onError) {
+			console.log(onError)
+		}
     }
     
     public registerEditor(editor: Editor) {
