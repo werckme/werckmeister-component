@@ -9,7 +9,13 @@ export interface IMarker {
     clear();
 }
 
+const CodemirrorTheme = "base16-dark";
+
 export type DocumentIndex = number;
+
+export interface EditorOptions {
+    theme?: string
+}
 
 export class Editor {
     private editor: CodeMirror.Editor;
@@ -20,9 +26,11 @@ export class Editor {
      * @param element 
      * @param value 
      */
-    constructor(element: HTMLElement, value: string = "") {
+    constructor(element: HTMLElement, value: string = "", options?: EditorOptions) {
+        options = options || { theme: "default" };
         this.editor = CodeMirror(element, {
-            value: value
+            value: value,
+            theme: options.theme
         });
     }
 
