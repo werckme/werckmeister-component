@@ -165,14 +165,14 @@ export class Workspace extends HTMLElement {
         if (error instanceof Error) {
             console.error(`werckmeister compiler error: ${error}`);
             return;
-        }
+		}
+		this.onError(error);
 		console.error(`werckmeister compiler error: ${error.errorMessage}`);
 		const editor = this.sourceIdEditorMap.get(error.sourceId);
 		if (!editor) {
 			return;
 		}
 		editor.setError(error);
-		this.onError(error);
 	}
 
 
