@@ -195,5 +195,15 @@ export class Workspace extends HTMLElement {
 			return;
 		}
 		this.editors.splice(idx, 1);
+	}
+	
+	isClean() {
+        return _.every(this.editors, (editor) => editor.isClean());
+    }
+
+    markClean() {
+        for(const editor of this.editors) {
+			editor.markClean();
+		}
     }
 }

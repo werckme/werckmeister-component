@@ -22,7 +22,7 @@ export class Editor extends HTMLElement {
 		return this._filename;
 	}
 	private eventMarkers: IMarker[] = [];
-	private editor: EditorImpl;
+	private editorImpl: EditorImpl;
 	werckmeisterDocumentId: number;
 
 	/**
@@ -36,7 +36,7 @@ export class Editor extends HTMLElement {
 	 * 
 	 */
 	public clearAllMarkers() {
-		this.editor.clearMarkers();
+		this.editorImpl.clearMarkers();
 	}
 
 	/**
@@ -65,7 +65,7 @@ export class Editor extends HTMLElement {
 	 * 
 	 */
 	getScriptText(): string {
-		const script = this.editor.getValue();
+		const script = this.editorImpl.getValue();
 		return script.trim();
 	}
 
@@ -73,7 +73,7 @@ export class Editor extends HTMLElement {
 	 * 
 	 */
 	setScriptText(text: string) {
-		this.editor.setValue(text);
+		this.editorImpl.setValue(text);
 	}
 
 	/**
@@ -82,7 +82,7 @@ export class Editor extends HTMLElement {
 	 */
 	setError(error: ICompilerError) {
 		this.clearAllMarkers();
-		this.editor.setErrorMarker(error.positionBegin, error.positionBegin + 1);
+		this.editorImpl.setErrorMarker(error.positionBegin, error.positionBegin + 1);
 	}
 
 	/**
@@ -106,7 +106,7 @@ export class Editor extends HTMLElement {
 	private init() {
 		const el = this.shadowRoot.getElementById("editor");
 		const script = this.getScriptContent(this.innerHTML);
-		this.editor = new EditorImpl(el, script);
+		this.editorImpl = new EditorImpl(el, script);
 		this.initListener();
 		this.readAttributes()
 	}
@@ -137,12 +137,20 @@ export class Editor extends HTMLElement {
 
 	public addMarkers(sheetEvents: ISheetEventInfo[]) {
 		for(const sheetEvent of sheetEvents) {
-			const marker = this.editor.setEventMarker(sheetEvent.beginPosition, sheetEvent.endPosition);
+			const marker = this.editorImpl.setEventMarker(sheetEvent.beginPosition, sheetEvent.endPosition);
 			this.eventMarkers.push(marker);
 		}
 	}
 
 	public update() {
-		this.editor.update();
+		this.editorImpl.update();
 	}
+
+	isClean() {
+        return this.editorImpl.isClean();
+    }
+
+    markClean() {
+        this.editorImpl.markClean();
+    }
 }

@@ -86,4 +86,12 @@ export class Editor {
     update() {
         this.editor.refresh();
     }
+
+    isClean() {
+        return this.editor.isClean();
+    }
+
+    markClean() {
+        this.editor.markClean();
+    }
 }
