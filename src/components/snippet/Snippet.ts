@@ -319,7 +319,7 @@ export class Snippet extends HTMLElement {
 		const cssText = await fetchText(url);
 		const styleEl = document.createElement("style");
 		styleEl.innerText = cssText;
-		let x = this.shadowRoot.appendChild(styleEl);
+		this.shadowRoot.appendChild(styleEl);
 	}
 
 	/**
