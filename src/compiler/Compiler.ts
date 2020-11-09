@@ -34,6 +34,15 @@ export interface ICompilerError {
     sourceId: number;
 }
 
+export class CompilerError implements ICompilerError {
+    constructor(public errorMessage: string = "") {
+
+    }
+    positionBegin: number;
+    sourceFile: string;
+    sourceId: number;
+}
+
 export interface IRequestFile {
     path: string;
     data: string;
@@ -167,28 +176,24 @@ export class WerckmeisterCompiler {
      */
     async compile(sheetFiles: IRequestFile[]): Promise<IWerckmeisterCompiledDocument> {
         if (!sheetFiles || sheetFiles.length === 0) {
-            throw new Error("no content to compile");
+            throw new CompilerError("no content to compile");
         }
         const wm = await this.module;
         let strPtr: number = 0;
-        try {
-            let mainSheet:IRequestFile = null;
-            for(const sheetFile of sheetFiles) {
-                if (!sheetFile.path || !sheetFile.path.trim()) {
-                    throw new Error("sheet file has no path");
-                }
-                wm.FS.writeFile(sheetFile.path, sheetFile.data);
-                if (sheetFile.path.trim().endsWith('.sheet')) {
-                    mainSheet = sheetFile;
-                }
+        let mainSheet:IRequestFile = null;
+        for(const sheetFile of sheetFiles) {
+            if (!sheetFile.path || !sheetFile.path.trim()) {
+                throw new CompilerError("sheet file has no path");
             }
-            if (!mainSheet) {
-                throw new Error("missing main sheet file (.sheet)");
+            wm.FS.writeFile(sheetFile.path, sheetFile.data);
+            if (sheetFile.path.trim().endsWith('.sheet')) {
+                mainSheet = sheetFile;
             }
-            strPtr = this.createCompileResult(mainSheet.path);
-        } catch (ex) {
-            console.error(ex)
         }
+        if (!mainSheet) {
+            throw new CompilerError("missing main sheet file (.sheet)");
+        }
+        strPtr = this.createCompileResult(mainSheet.path);
         const resultStr = wm.UTF8ToString(strPtr);
         wm._free(strPtr);
         const resultJson = JSON.parse(resultStr);

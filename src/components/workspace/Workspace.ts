@@ -134,7 +134,7 @@ export class Workspace extends HTMLElement {
 			this.onCompiled(this.document);
             this.updateSourceIdMap(this.document);
 		} catch(ex) {
-			this._onError(ex.error);
+			this._onError(ex.error || ex);
 			this.playerIsFetching = true;
 			return;
 		}
@@ -162,6 +162,7 @@ export class Workspace extends HTMLElement {
 	 * @param error 
 	 */
 	private _onError(error: ICompilerError | Error) {
+		console.log(error);
         if (error instanceof Error) {
             console.error(`werckmeister compiler error: ${error}`);
             return;

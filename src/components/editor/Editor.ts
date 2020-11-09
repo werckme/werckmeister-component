@@ -25,6 +25,10 @@ export class Editor extends HTMLElement {
 	private editorImpl: EditorImpl;
 	werckmeisterDocumentId: number;
 
+	public setFilename(newName: string) {
+		this._filename = newName;
+	}
+
 	/**
 	 * 
 	 */
