@@ -23,7 +23,8 @@ interface WerckmeisterModule {
             parentPath: string,
             parentObject: string
         },
-        mkdir: (path: string) => void
+        mkdir: (path: string) => void,
+        unlink: (path: string) => void
     };
 }
 
@@ -79,6 +80,10 @@ export interface IWerckmeisterCompiledDocument {
 
 export class WerckmeisterCompiler {
     module: Promise<WerckmeisterModule>;
+    /**
+     * before compiling, these files were written to the filesystem
+     */
+    private cwdFiles: string[] = [];
     private createCompileResult: (file: string) => number;
     /**
      * 
@@ -148,15 +153,22 @@ export class WerckmeisterCompiler {
         }
     }
 
+    private async writeFileToFS(path: string, data: string) {
+        const wm = await this.module;
+        wm.FS.writeFile(path,  data);
+        this.cwdFiles.push(path);
+    }
+
     /**
      * 
      * @param sheetFile 
      */
     async compileSingleSheetFile(sheetFile: IRequestFile): Promise<IWerckmeisterCompiledDocument> {
+        await this.cleanCWD();
         const wm = await this.module;
         let strPtr: number = 0;
         try {
-            wm.FS.writeFile(sheetFile.path, sheetFile.data);
+            await this.writeFileToFS(sheetFile.path, sheetFile.data);
             strPtr = this.createCompileResult(sheetFile.path);
         } catch (ex) {
             console.error(ex)
@@ -170,11 +182,20 @@ export class WerckmeisterCompiler {
         return resultJson;
     }
 
-        /**
+    async cleanCWD() {
+        const fs = (await this.module).FS;
+        for(const path of this.cwdFiles) {
+            fs.unlink(path);
+        }
+        this.cwdFiles.splice(0, this.cwdFiles.length);
+    }
+
+    /**
      * 
      * @param sheetFile 
      */
     async compile(sheetFiles: IRequestFile[]): Promise<IWerckmeisterCompiledDocument> {
+        await this.cleanCWD();
         if (!sheetFiles || sheetFiles.length === 0) {
             throw new CompilerError("no content to compile");
         }
@@ -185,7 +206,7 @@ export class WerckmeisterCompiler {
             if (!sheetFile.path || !sheetFile.path.trim()) {
                 throw new CompilerError("sheet file has no path");
             }
-            wm.FS.writeFile(sheetFile.path, sheetFile.data);
+            await this.writeFileToFS(sheetFile.path, sheetFile.data);
             if (sheetFile.path.trim().endsWith('.sheet')) {
                 mainSheet = sheetFile;
             }
