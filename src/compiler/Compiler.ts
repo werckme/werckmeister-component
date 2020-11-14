@@ -184,8 +184,12 @@ export class WerckmeisterCompiler {
 
     async cleanCWD() {
         const fs = (await this.module).FS;
+
         for(const path of this.cwdFiles) {
-            fs.unlink(path);
+            const info = fs.analyzePath(path, false);
+            if (info.exists) {
+                fs.unlink(path);
+            }
         }
         this.cwdFiles.splice(0, this.cwdFiles.length);
     }
