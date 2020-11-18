@@ -14,9 +14,18 @@
     margin-bottom: 1.5em;
 }
 
-.wm-marked {
-    background: black;
-    color: white;
+
+.wm-marked::before {
+    content: " ";
+    position: absolute;
+    border-top: 4px solid #ff0;
+    border-left: 4px solid #ff0;
+    border-radius: 0;
+    height: 8px;
+    width: 8px;
+    transform: rotate(-135deg);
+    margin-top: -11px;
+    margin-left: 8px;
 }
 
 .wm-error {
