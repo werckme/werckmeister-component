@@ -1,5 +1,5 @@
 import { ICompilerError, SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
-import { Editor as EditorImpl, IMarker } from '../../editor/Editor';
+import { Editor as EditorImpl, IMarker, Mode } from '../../editor/Editor';
 const _ = require ('lodash');
 
 declare const require;
@@ -27,6 +27,7 @@ export class Editor extends HTMLElement {
 
 	public setFilename(newName: string) {
 		this._filename = newName;
+		this.updateMode();
 	}
 
 	/**
@@ -56,6 +57,25 @@ export class Editor extends HTMLElement {
 		const newNode = template.content.cloneNode(true);
 		this.shadowRoot.appendChild(newNode);
 		setTimeout(this.init.bind(this));
+	}
+
+	private updateMode() {
+		if (!this.filename) {
+			this.editorImpl.setMode(Mode.text);
+			return;
+		}
+		const match = this.filename.match(/.*(\.[^.]*$)/)
+		if (!match || match.length < 2) {
+			this.editorImpl.setMode(Mode.text);
+			return;
+		}
+		const ext = match[1];
+		switch(ext) {
+			case '.sheet'   : 	
+			case '.template': return this.editorImpl.setMode(Mode.sheet);
+			case '.lua'     : return this.editorImpl.setMode(Mode.lua);
+			default         : return this.editorImpl.setMode(Mode.text);
+		}
 	}
 
 	/**
@@ -135,7 +155,7 @@ export class Editor extends HTMLElement {
 		}
 		const fileName = this.attributes.getNamedItem("wm-filename");
 		if (fileName) {
-			this._filename = fileName.value;
+			this.setFilename(fileName.value);
 		}		
 	}
 
