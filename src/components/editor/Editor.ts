@@ -4,9 +4,11 @@ const _ = require ('lodash');
 
 declare const require;
 const fs = require('fs');
-const codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
+let codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
 const editorCss = fs.readFileSync('./src/components/editor/editor.css', 'utf8');
 const editorHtml = fs.readFileSync('./src/components/editor/editor.html', 'utf8');
+const CodemirrorTheme = "dracula";
+codemirrorCss += fs.readFileSync('./node_modules/codemirror/theme/' + CodemirrorTheme + '.css', 'utf8');
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -130,7 +132,7 @@ export class Editor extends HTMLElement {
 	private init() {
 		const el = this.shadowRoot.getElementById("editor");
 		const script = this.getScriptContent(this.innerHTML);
-		this.editorImpl = new EditorImpl(el, script);
+		this.editorImpl = new EditorImpl(el, script, { theme: CodemirrorTheme });
 		this.initListener();
 		this.readAttributes()
 	}
