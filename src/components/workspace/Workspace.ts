@@ -101,7 +101,7 @@ export class Workspace extends HTMLElement {
 	 */
 	private onPlayerState(old: PlayerState, new_: PlayerState) {
 		if (new_ === PlayerState.Stopped) {
-
+			
 		}
 		if (new_ === PlayerState.Playing) {
 
