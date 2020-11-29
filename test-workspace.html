@@ -65,6 +65,9 @@ instrument: rhtythm;
         const workspace = document.getElementById('workspace');
         workspace.registerEditor(document.getElementById('ed1'));
         workspace.registerEditor(document.getElementById('ed2'));
+        workspace.onError = (ex) => console.log(ex);
+        workspace.onCompiled = (doc) => console.log(doc);
+        console.log(workspace);
         setTimeout(() => {
             document.getElementById('ed1').update();
         }, 100);

@@ -1,5 +1,7 @@
 declare const require;
 const CodeMirror = require("codemirror/lib/codemirror.js");
+require('codemirror/mode/javascript/javascript.js');
+require('codemirror/mode/lua/lua.js');
 require("./SheetMode");
 
 export interface IMarker {
@@ -9,7 +11,19 @@ export interface IMarker {
     clear();
 }
 
+const CodemirrorTheme = "base16-dark";
+
 export type DocumentIndex = number;
+
+export interface EditorOptions {
+    theme?: string
+}
+
+export enum Mode  {
+    sheet = 'sheet',
+    text = 'text',
+    lua = 'lua'
+}
 
 export class Editor {
     private editor: CodeMirror.Editor;
@@ -20,10 +34,21 @@ export class Editor {
      * @param element 
      * @param value 
      */
-    constructor(element: HTMLElement, value: string = "") {
+    constructor(element: HTMLElement, value: string = "", options?: EditorOptions) {
+        options = options || { theme: "default" };
         this.editor = CodeMirror(element, {
-            value: value
+            value: value,
+            theme: options.theme,
+            mode: Mode[Mode.sheet]
         });
+    }
+
+    setMode(mode: Mode) {
+        if (mode === Mode.text) {
+            this.editor.setOption("mode", null);
+            return;
+        }
+        this.editor.setOption("mode", Mode[mode]);
     }
 
     /**
@@ -85,5 +110,13 @@ export class Editor {
      */
     update() {
         this.editor.refresh();
+    }
+
+    isClean() {
+        return this.editor.isClean();
+    }
+
+    markClean() {
+        this.editor.markClean();
     }
 }

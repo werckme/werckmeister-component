@@ -3,11 +3,12 @@ const CodeMirror = require("codemirror/lib/codemirror.js");
 require("codemirror/addon/mode/simple.js");
 
 
-CodeMirror.defineSimpleMode("simplemode", {
+CodeMirror.defineSimpleMode("sheet", {
     // The start state contains the rules that are intially used
     start: [
         { regex: /"(?:[^\\]|\\.)*?(?:"|$)/, token: "string" },
         { regex: /(?:\w+):/, token: "keyword", next: "wmCommandValues"},
+        { regex: /using/, token: "keyword"},
         { regex: /\\[pf]{1,5}/,  token: "atom"},
         { regex: /--.*/, token: "comment" },
     ],

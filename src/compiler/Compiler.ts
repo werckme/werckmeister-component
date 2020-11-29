@@ -23,12 +23,22 @@ interface WerckmeisterModule {
             parentPath: string,
             parentObject: string
         },
-        mkdir: (path: string) => void
+        mkdir: (path: string) => void,
+        unlink: (path: string) => void
     };
 }
 
 export interface ICompilerError {
     errorMessage: string;
+    positionBegin: number;
+    sourceFile: string;
+    sourceId: number;
+}
+
+export class CompilerError implements ICompilerError {
+    constructor(public errorMessage: string = "") {
+
+    }
     positionBegin: number;
     sourceFile: string;
     sourceId: number;
@@ -70,6 +80,10 @@ export interface IWerckmeisterCompiledDocument {
 
 export class WerckmeisterCompiler {
     module: Promise<WerckmeisterModule>;
+    /**
+     * before compiling, these files were written to the filesystem
+     */
+    private cwdFiles: string[] = [];
     private createCompileResult: (file: string) => number;
     /**
      * 
@@ -139,15 +153,22 @@ export class WerckmeisterCompiler {
         }
     }
 
+    private async writeFileToFS(path: string, data: string) {
+        const wm = await this.module;
+        wm.FS.writeFile(path,  data);
+        this.cwdFiles.push(path);
+    }
+
     /**
      * 
      * @param sheetFile 
      */
     async compileSingleSheetFile(sheetFile: IRequestFile): Promise<IWerckmeisterCompiledDocument> {
+        await this.cleanCWD();
         const wm = await this.module;
         let strPtr: number = 0;
         try {
-            wm.FS.writeFile(sheetFile.path, sheetFile.data);
+            await this.writeFileToFS(sheetFile.path, sheetFile.data);
             strPtr = this.createCompileResult(sheetFile.path);
         } catch (ex) {
             console.error(ex)
@@ -161,34 +182,43 @@ export class WerckmeisterCompiler {
         return resultJson;
     }
 
-        /**
+    async cleanCWD() {
+        const fs = (await this.module).FS;
+
+        for(const path of this.cwdFiles) {
+            const info = fs.analyzePath(path, false);
+            if (info.exists) {
+                fs.unlink(path);
+            }
+        }
+        this.cwdFiles.splice(0, this.cwdFiles.length);
+    }
+
+    /**
      * 
      * @param sheetFile 
      */
     async compile(sheetFiles: IRequestFile[]): Promise<IWerckmeisterCompiledDocument> {
+        await this.cleanCWD();
         if (!sheetFiles || sheetFiles.length === 0) {
-            throw new Error("no content to compile");
+            throw new CompilerError("no content to compile");
         }
         const wm = await this.module;
         let strPtr: number = 0;
-        try {
-            let mainSheet:IRequestFile = null;
-            for(const sheetFile of sheetFiles) {
-                if (!sheetFile.path || !sheetFile.path.trim()) {
-                    throw new Error("sheet file has no path");
-                }
-                wm.FS.writeFile(sheetFile.path, sheetFile.data);
-                if (sheetFile.path.trim().endsWith('.sheet')) {
-                    mainSheet = sheetFile;
-                }
+        let mainSheet:IRequestFile = null;
+        for(const sheetFile of sheetFiles) {
+            if (!sheetFile.path || !sheetFile.path.trim()) {
+                throw new CompilerError("sheet file has no path");
             }
-            if (!mainSheet) {
-                throw new Error("missing main sheet file (.sheet)");
+            await this.writeFileToFS(sheetFile.path, sheetFile.data);
+            if (sheetFile.path.trim().endsWith('.sheet')) {
+                mainSheet = sheetFile;
             }
-            strPtr = this.createCompileResult(mainSheet.path);
-        } catch (ex) {
-            console.error(ex)
         }
+        if (!mainSheet) {
+            throw new CompilerError("missing main sheet file (.sheet)");
+        }
+        strPtr = this.createCompileResult(mainSheet.path);
         const resultStr = wm.UTF8ToString(strPtr);
         wm._free(strPtr);
         const resultJson = JSON.parse(resultStr);

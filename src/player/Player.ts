@@ -145,6 +145,9 @@ export class Player {
      * 
      */
 	async stop() {
+        if (this.state === PlayerState.Stopped) {
+            return;
+        }
         this.onStop();
 		const player = await this.getPlayer(null);
         player.stop();

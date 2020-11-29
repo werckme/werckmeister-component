@@ -1,12 +1,14 @@
 import { ICompilerError, SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
-import { Editor as EditorImpl, IMarker } from '../../editor/Editor';
+import { Editor as EditorImpl, IMarker, Mode } from '../../editor/Editor';
 const _ = require ('lodash');
 
 declare const require;
 const fs = require('fs');
-const codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
+let codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
 const editorCss = fs.readFileSync('./src/components/editor/editor.css', 'utf8');
 const editorHtml = fs.readFileSync('./src/components/editor/editor.html', 'utf8');
+const CodemirrorTheme = "dracula";
+codemirrorCss += fs.readFileSync('./node_modules/codemirror/theme/' + CodemirrorTheme + '.css', 'utf8');
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -22,8 +24,13 @@ export class Editor extends HTMLElement {
 		return this._filename;
 	}
 	private eventMarkers: IMarker[] = [];
-	private editor: EditorImpl;
+	private editorImpl: EditorImpl;
 	werckmeisterDocumentId: number;
+
+	public setFilename(newName: string) {
+		this._filename = newName;
+		this.updateMode();
+	}
 
 	/**
 	 * 
@@ -36,7 +43,7 @@ export class Editor extends HTMLElement {
 	 * 
 	 */
 	public clearAllMarkers() {
-		this.editor.clearMarkers();
+		this.editorImpl.clearMarkers();
 	}
 
 	/**
@@ -54,6 +61,25 @@ export class Editor extends HTMLElement {
 		setTimeout(this.init.bind(this));
 	}
 
+	private updateMode() {
+		if (!this.filename) {
+			this.editorImpl.setMode(Mode.text);
+			return;
+		}
+		const match = this.filename.match(/.*(\.[^.]*$)/)
+		if (!match || match.length < 2) {
+			this.editorImpl.setMode(Mode.text);
+			return;
+		}
+		const ext = match[1];
+		switch(ext) {
+			case '.sheet'   : 	
+			case '.template': return this.editorImpl.setMode(Mode.sheet);
+			case '.lua'     : return this.editorImpl.setMode(Mode.lua);
+			default         : return this.editorImpl.setMode(Mode.text);
+		}
+	}
+
 	/**
 	 * 
 	 */
@@ -65,7 +91,7 @@ export class Editor extends HTMLElement {
 	 * 
 	 */
 	getScriptText(): string {
-		const script = this.editor.getValue();
+		const script = this.editorImpl.getValue();
 		return script.trim();
 	}
 
@@ -73,7 +99,7 @@ export class Editor extends HTMLElement {
 	 * 
 	 */
 	setScriptText(text: string) {
-		this.editor.setValue(text);
+		this.editorImpl.setValue(text);
 	}
 
 	/**
@@ -82,7 +108,7 @@ export class Editor extends HTMLElement {
 	 */
 	setError(error: ICompilerError) {
 		this.clearAllMarkers();
-		this.editor.setErrorMarker(error.positionBegin, error.positionBegin + 1);
+		this.editorImpl.setErrorMarker(error.positionBegin, error.positionBegin + 1);
 	}
 
 	/**
@@ -106,7 +132,7 @@ export class Editor extends HTMLElement {
 	private init() {
 		const el = this.shadowRoot.getElementById("editor");
 		const script = this.getScriptContent(this.innerHTML);
-		this.editor = new EditorImpl(el, script);
+		this.editorImpl = new EditorImpl(el, script, { theme: CodemirrorTheme });
 		this.initListener();
 		this.readAttributes()
 	}
@@ -131,18 +157,26 @@ export class Editor extends HTMLElement {
 		}
 		const fileName = this.attributes.getNamedItem("wm-filename");
 		if (fileName) {
-			this._filename = fileName.value;
+			this.setFilename(fileName.value);
 		}		
 	}
 
 	public addMarkers(sheetEvents: ISheetEventInfo[]) {
 		for(const sheetEvent of sheetEvents) {
-			const marker = this.editor.setEventMarker(sheetEvent.beginPosition, sheetEvent.endPosition);
+			const marker = this.editorImpl.setEventMarker(sheetEvent.beginPosition, sheetEvent.endPosition);
 			this.eventMarkers.push(marker);
 		}
 	}
 
 	public update() {
-		this.editor.update();
+		this.editorImpl.update();
 	}
+
+	isClean() {
+        return this.editorImpl.isClean();
+    }
+
+    markClean() {
+        this.editorImpl.markClean();
+    }
 }

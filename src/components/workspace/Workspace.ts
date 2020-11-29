@@ -21,7 +21,9 @@ ${editorHtml}
 `;
 export class Workspace extends HTMLElement {
 	document: IWerckmeisterCompiledDocument;
-    bpm: number = 120;
+	bpm: number = 120;
+	public onError = (error: ICompilerError) => {};
+	public onCompiled = (document: IWerckmeisterCompiledDocument) => {};
     private _playerIsFetching: boolean;
     private editors: Editor[] = [];
     private sourceIdEditorMap: Map<number, Editor> = new Map<number, Editor>();
@@ -99,7 +101,7 @@ export class Workspace extends HTMLElement {
 	 */
 	private onPlayerState(old: PlayerState, new_: PlayerState) {
 		if (new_ === PlayerState.Stopped) {
-
+			
 		}
 		if (new_ === PlayerState.Playing) {
 
@@ -128,10 +130,11 @@ export class Workspace extends HTMLElement {
                 data: editor.getScriptText()
 			}));
 			this.clearAllEditorMarkers();
-            this.document = await WM_Compiler.compile(files);
+			this.document = await WM_Compiler.compile(files);
+			this.onCompiled(this.document);
             this.updateSourceIdMap(this.document);
 		} catch(ex) {
-			this.onError(ex.error);
+			this._onError(ex.error || ex);
 			this.playerIsFetching = true;
 			return;
 		}
@@ -158,11 +161,13 @@ export class Workspace extends HTMLElement {
 	 * 
 	 * @param error 
 	 */
-	private onError(error: ICompilerError | Error) {
+	private _onError(error: ICompilerError | Error) {
+		console.log(error);
         if (error instanceof Error) {
             console.error(`werckmeister compiler error: ${error}`);
             return;
-        }
+		}
+		this.onError(error);
 		console.error(`werckmeister compiler error: ${error.errorMessage}`);
 		const editor = this.sourceIdEditorMap.get(error.sourceId);
 		if (!editor) {
@@ -182,7 +187,10 @@ export class Workspace extends HTMLElement {
 
 
 	private async readAttributes() {
-	
+		const onError = this.attributes.getNamedItem("wm-onerror");
+		if (onError) {
+			console.log(onError)
+		}
     }
     
     public registerEditor(editor: Editor) {
@@ -195,5 +203,15 @@ export class Workspace extends HTMLElement {
 			return;
 		}
 		this.editors.splice(idx, 1);
+	}
+	
+	isClean() {
+        return _.every(this.editors, (editor) => editor.isClean());
+    }
+
+    markClean() {
+        for(const editor of this.editors) {
+			editor.markClean();
+		}
     }
 }
