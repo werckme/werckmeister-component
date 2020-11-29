@@ -34,6 +34,15 @@ import { Base64Binary } from "../../inc/shim/Base64binary.js";
 			}
 		};
 
+		function getInstrument(channelId) {
+			if (channelId === 9) {
+				return 128;
+			}
+			var channel = root.channels[channelId];
+			var instrument = channel.instrument;
+			return instrument;
+		}
+
 		midi.programChange = function(channelId, program, delay) {
 // 			if (delay) {
 // 				return setTimeout(function() {
@@ -62,8 +71,7 @@ import { Base64Binary } from "../../inc/shim/Base64binary.js";
 			delay = delay || 0;
 
 			/// check whether the note exists
-			var channel = root.channels[channelId];
-			var instrument = channel.instrument;
+			var instrument = getInstrument(channelId);
 			var bufferId = instrument + '' + noteId;
 			var buffer = audioBuffers[bufferId];
 			if (!buffer) {
@@ -125,8 +133,7 @@ import { Base64Binary } from "../../inc/shim/Base64binary.js";
 			delay = delay || 0;
 
 			/// check whether the note exists
-			var channel = root.channels[channelId];
-			var instrument = channel.instrument;
+			var instrument = getInstrument(channelId);
 			var bufferId = instrument + '' + noteId;
 			var buffer = audioBuffers[bufferId];
 			if (buffer) {
