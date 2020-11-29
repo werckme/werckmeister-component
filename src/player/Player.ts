@@ -61,7 +61,7 @@ export class Player {
 		return new Promise((resolve, reject) => {
 			MIDI.loadPlugin({
 				soundfontUrl: soundfontUrl,
-				instrument: 'acoustic_grand_piano',		
+				instrument: ['acoustic_grand_piano', 'percussion'],	
 				onerror: reject,
 				onsuccess: () => {
 					this._player = MIDI.Player;
