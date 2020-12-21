@@ -20,7 +20,7 @@ declare const MIDI: any;
 
 const DeltaBugFixOffset = 1;
 
-const soundfontUrl = "https://gleitz.github.io/midi-js-soundfonts/FluidR3_GM/";
+const soundfontUrl = "https://werckme.github.io/midi-js-soundfonts/FluidR3_GM/";
 
 /**
  * the tick values of MIDI.js seems only to be correct if 
