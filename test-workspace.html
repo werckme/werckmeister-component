@@ -2,6 +2,7 @@
 <body>
     <script src="./src/werckmeister-components.ts"></script>
     <werckmeister-workspace id="workspace"></werckmeister-workspace>
+    <a href id="download">Download MIDI</a>
     <h2>main.sheet</h2>
     <werckmeister-editor id="ed1" wm-filename="main.sheet" wm-style="height: 700px;">
 using "chords/default.chords";
@@ -10,7 +11,7 @@ using "./comp.template";
 tempo: 140;
 device: MyDevice  midi _usePort=0;
 instrumentDef:lead    _onDevice=MyDevice  _ch=0 _pc=0;
-instrumentDef:rhtythm _onDevice=MyDevice  _ch=1 _pc=0;
+instrumentDef:rhythm _onDevice=MyDevice  _ch=1 _pc=0;
 instrumentDef:bass    _onDevice=MyDevice  _ch=2 _pc=0;
 
 -- melody track
@@ -52,7 +53,7 @@ type: accomp;
 [
 type: template;
 name: myAccomp;
-instrument: rhtythm;
+instrument: rhythm;
 {
     \p
     <III, V, VII, II>1 | 
@@ -67,10 +68,14 @@ instrument: rhtythm;
         workspace.registerEditor(document.getElementById('ed2'));
         workspace.onError = (ex) => console.log(ex);
         workspace.onCompiled = (doc) => console.log(doc);
-        console.log(workspace);
         setTimeout(() => {
             document.getElementById('ed1').update();
         }, 100);
+        const downloadEl = document.querySelector("#download");
+        downloadEl.onclick = (ev) => {
+            ev.preventDefault();
+            workspace.download("AutumnLeaves.mid");
+        }
     </script>
 </body>
 

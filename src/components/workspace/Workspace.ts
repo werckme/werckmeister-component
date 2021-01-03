@@ -143,6 +143,25 @@ export class Workspace extends HTMLElement {
 		this.playerIsFetching = false;
 	}
 
+	public async download(filename: string = "WerckmeisterMidi.mid") {
+		try {
+            const files = this.editors.map(editor => ({
+                path: editor.filename,
+                data: editor.getScriptText()
+			}));
+			this.document = await WM_Compiler.compile(files);
+		} catch(ex) {
+			this._onError(ex.error || ex);
+			return;
+		}
+		console.log(this.document)
+		const linkSource = `data:midi;base64,${this.document.midi.midiData}`;
+		const downloadLink = document.createElement("a");
+		downloadLink.href = linkSource;
+		downloadLink.download = filename;
+		downloadLink.click();
+	}
+
 	/**
 	 * 
 	 */

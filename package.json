@@ -34,7 +34,7 @@
     "codemirror": "^5.57.0",
     "jquery": "^3.5.1",
     "lodash": "^4.17.20",
-    "werckmeister-midiplayer": "^1.0.2",
+    "werckmeister-midiplayer": "^1.0.53",
     "werckmeisterjs": "^0.1.5522",
     "xmlhttprequest": "^1.8.0"
   },

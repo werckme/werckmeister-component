@@ -5,6 +5,8 @@ import { Quarters } from "../shared/types";
 import * as _ from 'lodash';
 import { PlayerState } from "../shared/player";
 import { WerckmeisterMidiPlayer } from 'werckmeister-midiplayer';
+import { IMidiEvent } from "werckmeister-midiplayer/IMidiEvent";
+import { MidiEvent } from "../shared/midiEvent";
 
 declare const MIDI: any;
 
@@ -32,6 +34,7 @@ export class Player {
         if (!this._player) {
             this._player = new WerckmeisterMidiPlayer();
             this._player.initAudioEnvironment(event);
+            this._player.onMidiEvent = this.onEvent.bind(this);
         }
         return this._player;
     }
@@ -40,19 +43,18 @@ export class Player {
      * 
      * @param playerEvent 
      */
-    onEvent(playerEvent: any) {
-        // const ticks = playerEvent.now - DeltaBugFixOffset;
-		// const ppq = this._currentMidifile.header.ticksPerBeat;
-		// const position = fixBrokenTicks(ticks, this.tempo) / ppq;
-		// const midiEvent = new MidiEvent();
-		// // tslint:disable-next-line: no-bitwise
-		// midiEvent.eventType = playerEvent.message >> 4;
-		// midiEvent.parameter1 = playerEvent.note;
-		// midiEvent.parameter2 = playerEvent.velocity;
-        // midiEvent.channel = playerEvent.channel;
-        // if (this.onMidiEvent) {
-        //     this.onMidiEvent({position, midiEvent});
-        // }
+    onEvent(playerEvent: IMidiEvent) {
+        const ticks = playerEvent.absPositionTicks;
+		const midiEvent = new MidiEvent();
+		// tslint:disable-next-line: no-bitwise
+		midiEvent.eventType = playerEvent.type;
+		midiEvent.parameter1 = playerEvent.param1;
+		midiEvent.parameter2 = playerEvent.param2;
+        midiEvent.channel = playerEvent.channel;
+        if (this.onMidiEvent) {
+            this.onMidiEvent({position: ticks/this._player.ppq, midiEvent});
+        }
+        // TODO:
 		// if (this.onPlayerState && playerEvent.now >= playerEvent.end) {
 		// 	this.onStop();
 		// }
@@ -65,7 +67,6 @@ export class Player {
      */
     private async loadFile(midiBase64: string, player): Promise<void> {
         await player.load(midiBase64);
-        // TODO currentMidiFile
     }
     
     /**
