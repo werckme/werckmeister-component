@@ -27,10 +27,26 @@ export class Workspace extends HTMLElement {
     private _playerIsFetching: boolean;
     private editors: Editor[] = [];
     private sourceIdEditorMap: Map<number, Editor> = new Map<number, Editor>();
-	private set playerIsFetching(val: boolean) {
+
+	set playerIsFetching(val: boolean) {
 		this._playerIsFetching = val;
+		const snippetEl = this.workspaceControlsElement;
+		if (val) {
+			snippetEl.classList.add("wm-player-fetching");
+		} else {
+			snippetEl.classList.remove("wm-player-fetching");
+		}
+	}
+	
+	get playerIsFetching(): boolean {
+		return this._playerIsFetching;
 	}
 
+	public playerState: PlayerState;
+
+	private get workspaceControlsElement(): HTMLElement {
+		return this.shadowRoot.getElementById("wm-controls");
+	}
 
 	private get playButtonElement(): HTMLElement {
 		return this.shadowRoot.getElementById("btnPlay");
@@ -101,11 +117,15 @@ export class Workspace extends HTMLElement {
 	 */
 	private onPlayerState(old: PlayerState, new_: PlayerState) {
 		if (new_ === PlayerState.Stopped) {
-			
+			this.clearAllEditorMarkers();
+			this.workspaceControlsElement.classList.remove("wm-state-playing");
+			this.workspaceControlsElement.classList.add("wm-state-stopped");
 		}
 		if (new_ === PlayerState.Playing) {
-
+			this.workspaceControlsElement.classList.remove("wm-state-stopped");
+			this.workspaceControlsElement.classList.add("wm-state-playing");
 		}
+		this.playerState = new_;
 	}
 
     private updateSourceIdMap(document: IWerckmeisterCompiledDocument) {
@@ -154,7 +174,6 @@ export class Workspace extends HTMLElement {
 			this._onError(ex.error || ex);
 			return;
 		}
-		console.log(this.document)
 		const linkSource = `data:midi;base64,${this.document.midi.midiData}`;
 		const downloadLink = document.createElement("a");
 		downloadLink.href = linkSource;
@@ -181,7 +200,6 @@ export class Workspace extends HTMLElement {
 	 * @param error 
 	 */
 	private _onError(error: ICompilerError | Error) {
-		console.log(error);
         if (error instanceof Error) {
             console.error(`werckmeister compiler error: ${error}`);
             return;
@@ -208,7 +226,7 @@ export class Workspace extends HTMLElement {
 	private async readAttributes() {
 		const onError = this.attributes.getNamedItem("wm-onerror");
 		if (onError) {
-			console.log(onError)
+			console.error(onError)
 		}
     }
     

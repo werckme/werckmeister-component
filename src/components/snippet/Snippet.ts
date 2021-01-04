@@ -56,6 +56,10 @@ export class Snippet extends HTMLElement {
 			snippetEl.classList.remove("wm-player-fetching");
 		}
 	}
+	
+	get playerIsFetching(): boolean {
+		return this._playerIsFetching;
+	}
 
 	get snippetElement(): HTMLElement {
 		return this.shadowRoot.getElementById("wm-snippet")
@@ -71,10 +75,6 @@ export class Snippet extends HTMLElement {
 
 	get stopButtonElement(): HTMLElement {
 		return this.shadowRoot.getElementById("btnStop");
-	}
-
-	get playerIsFetching(): boolean {
-		return this._playerIsFetching;
 	}
 
 	/**

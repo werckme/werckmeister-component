@@ -75,6 +75,7 @@
 
 #btnPlay, #btnStop {
     cursor: pointer;
+    user-select: none;
 }
 
 .wm-state-playing #btnPlay {

@@ -3,10 +3,10 @@ declare const require;
 
 import { Quarters } from "../shared/types";
 import * as _ from 'lodash';
-import { PlayerState } from "../shared/player";
-import { WerckmeisterMidiPlayer } from 'werckmeister-midiplayer';
+import { WerckmeisterMidiPlayer,PlayerState as MidiPlayerState } from 'werckmeister-midiplayer';
 import { IMidiEvent } from "werckmeister-midiplayer/IMidiEvent";
 import { MidiEvent } from "../shared/midiEvent";
+import { PlayerState } from "../shared/player";
 
 declare const MIDI: any;
 
@@ -24,7 +24,7 @@ export class Player {
     private _currentMidifile: any;
     public tempo = 120;
     private onMidiEvent: MidiEventCallback|null = null;
-    private onPlayerState: PlayerStateChangedCallback|null = null;
+    private onPlayerStateChangedCallback: PlayerStateChangedCallback|null = null;
     private state: PlayerState = PlayerState.Stopped;
     /**
      * 
@@ -35,8 +35,15 @@ export class Player {
             this._player = new WerckmeisterMidiPlayer();
             this._player.initAudioEnvironment(event);
             this._player.onMidiEvent = this.onEvent.bind(this);
+            this._player.onPlayerStateChanged = this._onPlayerStateChanged.bind(this);
         }
         return this._player;
+    }
+
+    private _onPlayerStateChanged(old: MidiPlayerState, _new: MidiPlayerState) {
+		if (_new === MidiPlayerState.Stopped) {
+            this.onStop();
+		}
     }
 
     /**
@@ -54,10 +61,6 @@ export class Player {
         if (this.onMidiEvent) {
             this.onMidiEvent({position: ticks/this._player.ppq, midiEvent});
         }
-        // TODO:
-		// if (this.onPlayerState && playerEvent.now >= playerEvent.end) {
-		// 	this.onStop();
-		// }
     }
 
     /**
@@ -82,23 +85,27 @@ export class Player {
             this._currentMidifile = null;
             console.error(ex);
         }
-        if (this.onPlayerState) {
+        if (this.onPlayerStateChangedCallback) {
             this.onStop();
         }
         this.onMidiEvent = onMidiEvent;
-        this.onPlayerState = onPlayerState;
+        this.onPlayerStateChangedCallback = onPlayerState;
         this.onPlay();
-        player.play();
+        await player.play();
 	}
 
     onStop() {
-        this.onPlayerState(this.state, PlayerState.Stopped);
+        if (this.onPlayerStateChangedCallback) {
+            this.onPlayerStateChangedCallback(this.state, PlayerState.Stopped);
+        }
         this.state = PlayerState.Stopped;
+        this.onMidiEvent = null;
+        this.onPlayerStateChangedCallback = null;
     }
 
     onPlay() {
-        this.onPlayerState(this.state, PlayerState.Playing);
-        this.state = PlayerState.Playing; 
+        this.onPlayerStateChangedCallback(this.state, PlayerState.Playing);
+        this.state = PlayerState.Playing;
     }
 
     /**
@@ -111,8 +118,6 @@ export class Player {
         this.onStop();
 		const player = await this.getPlayer(null);
         player.stop();
-        this.onMidiEvent = null;
-        this.onPlayerState = null;
 	}
 
 }
