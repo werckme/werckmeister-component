@@ -28,6 +28,17 @@ export class Workspace extends HTMLElement {
     private editors: Editor[] = [];
     private sourceIdEditorMap: Map<number, Editor> = new Map<number, Editor>();
 
+
+	getEditorByFileName(filename: string): Editor|undefined {
+		const filenames = this.editors
+			.map(x => `/${x.filename}`);
+		const idx = filenames.indexOf(filename);
+		if (idx < 0) {
+			return undefined;
+		}
+		return this.editors[idx];
+	}
+
 	set playerIsFetching(val: boolean) {
 		this._playerIsFetching = val;
 		const snippetEl = this.workspaceControlsElement;
@@ -204,12 +215,12 @@ export class Workspace extends HTMLElement {
 	 */
 	private _onError(error: ICompilerError | Error) {
         if (error instanceof Error) {
-            console.error(`werckmeister compiler error: ${error}`);
+            console.error(`${error}`);
             return;
 		}
 		this.onError(error);
-		console.error(`werckmeister compiler error: ${error.errorMessage}`);
-		const editor = this.sourceIdEditorMap.get(error.sourceId);
+		console.error(`${error.sourceFile}": ${error.errorMessage}`);
+		const editor = this.getEditorByFileName(error.sourceFile);
 		if (!editor) {
 			return;
 		}
