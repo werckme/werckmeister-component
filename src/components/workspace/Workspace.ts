@@ -144,23 +144,26 @@ export class Workspace extends HTMLElement {
 	 */
 	private async onPlayClicked(ev: MouseEvent) {
 		this.playerIsFetching = true;
-		try {
-            const files = this.editors.map(editor => ({
-                path: editor.filename,
-                data: editor.getScriptText()
-			}));
-			this.clearAllEditorMarkers();
-			this.document = await WM_Compiler.compile(files);
-			this.onCompiled(this.document);
-            this.updateSourceIdMap(this.document);
-		} catch(ex) {
-			this._onError(ex.error || ex);
-			this.playerIsFetching = true;
-			return;
-		}
-		WM_Player.tempo = this.document.midi.bpm;
-		await WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onPlayerState.bind(this));
-		this.playerIsFetching = false;
+		setTimeout(async () => {
+			try {
+				const files = this.editors.map(editor => ({
+					path: editor.filename,
+					data: editor.getScriptText()
+				}));
+				this.clearAllEditorMarkers();
+				this.document = await WM_Compiler.compile(files);
+				this.onCompiled(this.document);
+				this.updateSourceIdMap(this.document);
+			} catch(ex) {
+				this._onError(ex.error || ex);
+				return;
+			} finally {
+				this.playerIsFetching = false;
+			}
+			WM_Player.tempo = this.document.midi.bpm;
+			await WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onPlayerState.bind(this));
+			this.playerIsFetching = false;
+		});
 	}
 
 	public async download(filename: string = "WerckmeisterMidi.mid") {
