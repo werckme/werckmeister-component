@@ -4,6 +4,7 @@ import { EventType } from '../../shared/midiEvent';
 import { IWerckmeisterCompiledDocument, ICompilerError, SheetEventInfo } from '../../compiler/Compiler';
 import { PlayerState } from '../../shared/player';
 import { Editor } from '../editor/Editor';
+import { fetchText } from '../../shared/http';
 const _ = require ('lodash');
 
 declare const require;
@@ -167,9 +168,8 @@ export class Workspace extends HTMLElement {
 				this.updateSourceIdMap(this.document);
 			} catch(ex) {
 				this._onError(ex.error || ex);
-				return;
-			} finally {
 				this.playerIsFetching = false;
+				return;
 			}
 			WM_Player.tempo = this.document.midi.bpm;
 			await WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onPlayerState.bind(this));
@@ -237,10 +237,21 @@ export class Workspace extends HTMLElement {
 	}
 
 
+	private async loadExternalCss(url: string) {
+		const cssText = await fetchText(url);
+		const styleEl = document.createElement("style");
+		styleEl.innerText = cssText;
+		let x = this.shadowRoot.appendChild(styleEl);
+	}
+
 	private async readAttributes() {
 		const onError = this.attributes.getNamedItem("wm-onerror");
 		if (onError) {
 			console.error(onError)
+		}
+		const cssRefAttr = this.attributes.getNamedItem("wm-css-url");
+		if (cssRefAttr) {
+			this.loadExternalCss(cssRefAttr.value);
 		}
     }
     

@@ -1,5 +1,6 @@
 import { ICompilerError, SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
 import { Editor as EditorImpl, IMarker, Mode } from '../../editor/Editor';
+import { fetchText } from '../../shared/http';
 const _ = require ('lodash');
 
 declare const require;
@@ -138,8 +139,7 @@ export class Editor extends HTMLElement {
 	}
 
 	private async loadExternalCss(url: string) {
-		const cssRequest = await fetch(url);
-		const cssText = await cssRequest.text();
+		const cssText = await fetchText(url);
 		const styleEl = document.createElement("style");
 		styleEl.innerText = cssText;
 		let x = this.shadowRoot.appendChild(styleEl);
