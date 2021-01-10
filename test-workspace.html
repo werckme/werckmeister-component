@@ -55,12 +55,14 @@ instrument: rhythm;
         workspace.onCompiled = (doc) => console.log(doc);
         setTimeout(() => {
             document.getElementById('ed1').update();
+            document.getElementById('ed1').clearHistory();
         }, 100);
         const downloadEl = document.querySelector("#download");
         downloadEl.onclick = (ev) => {
             ev.preventDefault();
             workspace.download("AutumnLeaves.mid");
         }
+        
     </script>
 </body>
 

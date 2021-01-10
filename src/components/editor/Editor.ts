@@ -178,5 +178,9 @@ export class Editor extends HTMLElement {
 
     markClean() {
         this.editorImpl.markClean();
-    }
+	}
+	
+	clearHistory() {
+		this.editorImpl.clearHistory();
+	}
 }
