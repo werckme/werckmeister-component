@@ -119,4 +119,8 @@ export class Editor {
     markClean() {
         this.editor.markClean();
     }
+
+    clearHistory() {
+        this.editor.clearHistory();
+    }
 }

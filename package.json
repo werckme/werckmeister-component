@@ -1,12 +1,12 @@
 {
   "name": "werckmeister-components",
-  "version": "1.1.16",
+  "version": "1.1.21",
   "description": "",
   "main": "werckmeister-components.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build --no-source-maps src/werckmeister-components.ts",
-    "deploy": "rm -rf dist && npm run build && cp package.json dist",
+    "deploy": "rm -rf dist && npm run build && cp package.json dist && cp README.md dist",
     "serve-snippet": "parcel test-snippet.html editor.css",
     "serve-workspace": "parcel test-workspace.html editor.css"
   },
@@ -34,7 +34,8 @@
     "codemirror": "^5.57.0",
     "jquery": "^3.5.1",
     "lodash": "^4.17.20",
-    "werckmeisterjs": "^0.1.5520",
+    "werckmeister-midiplayer": "^1.0.57",
+    "werckmeisterjs": "^0.1.5522",
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {

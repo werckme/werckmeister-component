@@ -1,5 +1,6 @@
 import { ICompilerError, SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
 import { Editor as EditorImpl, IMarker, Mode } from '../../editor/Editor';
+import { fetchText } from '../../shared/http';
 const _ = require ('lodash');
 
 declare const require;
@@ -138,8 +139,7 @@ export class Editor extends HTMLElement {
 	}
 
 	private async loadExternalCss(url: string) {
-		const cssRequest = await fetch(url);
-		const cssText = await cssRequest.text();
+		const cssText = await fetchText(url);
 		const styleEl = document.createElement("style");
 		styleEl.innerText = cssText;
 		let x = this.shadowRoot.appendChild(styleEl);
@@ -163,7 +163,7 @@ export class Editor extends HTMLElement {
 
 	public addMarkers(sheetEvents: ISheetEventInfo[]) {
 		for(const sheetEvent of sheetEvents) {
-			const marker = this.editorImpl.setEventMarker(sheetEvent.beginPosition, sheetEvent.endPosition);
+			const marker = this.editorImpl.setEventMarker(sheetEvent.beginPosition, sheetEvent.beginPosition + 1);
 			this.eventMarkers.push(marker);
 		}
 	}
@@ -178,5 +178,9 @@ export class Editor extends HTMLElement {
 
     markClean() {
         this.editorImpl.markClean();
-    }
+	}
+	
+	clearHistory() {
+		this.editorImpl.clearHistory();
+	}
 }

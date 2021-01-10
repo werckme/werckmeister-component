@@ -2,6 +2,7 @@
 <body>
     <script src="./src/werckmeister-components.ts"></script>
     <werckmeister-workspace id="workspace"></werckmeister-workspace>
+    <a href id="download">Download MIDI</a>
     <h2>main.sheet</h2>
     <werckmeister-editor id="ed1" wm-filename="main.sheet" wm-style="height: 700px;">
 using "chords/default.chords";
@@ -10,7 +11,7 @@ using "./comp.template";
 tempo: 140;
 device: MyDevice  midi _usePort=0;
 instrumentDef:lead    _onDevice=MyDevice  _ch=0 _pc=0;
-instrumentDef:rhtythm _onDevice=MyDevice  _ch=1 _pc=0;
+instrumentDef:rhythm _onDevice=MyDevice  _ch=1 _pc=0;
 instrumentDef:bass    _onDevice=MyDevice  _ch=2 _pc=0;
 
 -- melody track
@@ -19,14 +20,6 @@ instrument: lead;
 {
     \fff
     r4 e f# g  | c'1~       | c'4 d e f#  | b2 b2~ | 
-    b4 c d e   | a1~        | a4 b, c# d# | g1     |
-    r4 e f# g  | c'1~       | c'4 d e f#  | b2 b2~ | 
-    b4 c d e   | a1~        | a4 f# a g   | e1~    |
-    e4 r d# e  | f# b, f#2~ | f#4 f# e f# | g1~    |
-    g4 g f# g  | a1~        | a4 d d' c'  | b1~    | 
-    b4 r a# b  | c' c' a a  | f#2. c'4    | b2 b2~ | 
-    b2. e4     | a2. g4     | f#2 g4 b,   | 
-    e1 
 }
 ]
 
@@ -35,13 +28,6 @@ instrument: lead;
 type: accomp;
 {   
     r      | A-7    | D7    | Gmaj7  | 
-    Cmaj7  | F#-7b5 | B7    | E-     | 
-    E-     | A-7    | D7    | Gmaj7  | 
-    Cmaj7  | F#-7b5 | B7    | E-     | 
-    E-     | F#-7b5 | B7b9  | E-     | 
-    E-     | A-7    | D7    | Gmaj7  |
-    Gmaj7  | F#-7b5 | B7b9  | E-7 A7 | 
-    D-7 G7 | F#-7b5 | B7b9  | E-     |
 }
 ]
 
@@ -52,7 +38,7 @@ type: accomp;
 [
 type: template;
 name: myAccomp;
-instrument: rhtythm;
+instrument: rhythm;
 {
     \p
     <III, V, VII, II>1 | 
@@ -67,10 +53,16 @@ instrument: rhtythm;
         workspace.registerEditor(document.getElementById('ed2'));
         workspace.onError = (ex) => console.log(ex);
         workspace.onCompiled = (doc) => console.log(doc);
-        console.log(workspace);
         setTimeout(() => {
             document.getElementById('ed1').update();
+            document.getElementById('ed1').clearHistory();
         }, 100);
+        const downloadEl = document.querySelector("#download");
+        downloadEl.onclick = (ev) => {
+            ev.preventDefault();
+            workspace.download("AutumnLeaves.mid");
+        }
+        
     </script>
 </body>
 

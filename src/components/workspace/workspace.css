@@ -1,3 +1,31 @@
 #wm-controls a {
     cursor: pointer;
+    user-select: none;
+}
+
+.wm-state-playing #btnPlay {
+    display: none;
+}
+  
+.wm-state-stopped #btnStop {
+    display: none;
+}
+  
+.wm-player-fetching #btnStop
+, .wm-player-fetching #btnPlay
+{
+    display: none;
+}
+  
+#fetching {
+    display: none;
+}
+
+@keyframes spin { 100% { transform:rotate(360deg); } }
+#fetching svg {
+    animation:spin 2s linear infinite;
+}
+
+.wm-player-fetching #fetching {
+    display: block;
 }
