@@ -1,9 +1,9 @@
 import { Ticks } from "../shared/types";
 
 declare const require
-const WerckmeisterFactory = require('werckmeisterjs/werckmeister');
+const WerckmeisterFactory = require('@werckmeister/compilerjs/werckmeister');
 const fs = require('fs');
-const werckmeisterAuxiliaryFiles = JSON.parse(fs.readFileSync('./node_modules/werckmeisterjs/werckmeister-auxiliaries.json', 'utf8'));
+const werckmeisterAuxiliaryFiles = JSON.parse(fs.readFileSync('./node_modules/@werckmeister/compilerjs/werckmeister-auxiliaries.json', 'utf8'));
 const _ = require ('lodash');
 
 interface WerckmeisterModule {
