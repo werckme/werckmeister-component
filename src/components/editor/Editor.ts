@@ -163,7 +163,7 @@ export class Editor extends HTMLElement {
 
 	public addMarkers(sheetEvents: ISheetEventInfo[]) {
 		for(const sheetEvent of sheetEvents) {
-			const marker = this.editorImpl.setEventMarker(sheetEvent.beginPosition, sheetEvent.endPosition);
+			const marker = this.editorImpl.setEventMarker(sheetEvent.beginPosition, sheetEvent.beginPosition + 1);
 			this.eventMarkers.push(marker);
 		}
 	}
