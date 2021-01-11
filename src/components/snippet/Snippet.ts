@@ -25,6 +25,9 @@ enum SnippetType {
 	default
 }
 
+let NumSnippets = 0;
+const PlayingSnippets = new Map<number, Snippet>();
+
 const template = document.createElement('template');
 template.innerHTML = `
 <style>
@@ -34,7 +37,7 @@ template.innerHTML = `
 ${snippetHtml}
 `;
 export class Snippet extends HTMLElement {
-
+	snippetId = NumSnippets++;
 	editor: Editor;
 	document: IWerckmeisterCompiledDocument;
 	snippetDocumentId: number;
@@ -85,7 +88,7 @@ export class Snippet extends HTMLElement {
 		this.createElement();
 	}
 
-	async createElement() {
+	private async createElement() {
 		this.attachShadow({ mode: 'open' });
 		const newNode = template.content.cloneNode(true);
 		this.shadowRoot.appendChild(newNode);
@@ -95,7 +98,7 @@ export class Snippet extends HTMLElement {
 	/**
 	 * 
 	 */
-	initListener() {
+	private initListener() {
 		const playCta = this.playButtonElement;
 		playCta.addEventListener("click", this.onPlayClicked.bind(this));
 		const stopCta = this.stopButtonElement;
@@ -106,29 +109,41 @@ export class Snippet extends HTMLElement {
 	 * 
 	 * @param ev 
 	 */
-	onMidiEvent(ev: IMidiplayerEvent) {
+	private onMidiEvent(ev: IMidiplayerEvent) {
 		if (ev.midiEvent.eventType === EventType.NoteOn) {
 			this.updateMarkers(ev.position);
 		}
 	}
 
+	async stopAllSippets() {
+		const snippets = Array.from(PlayingSnippets.values());
+		for(const snippet of snippets) {
+			await snippet.stop();
+		}
+		return new Promise<void>(resolve => {
+			setTimeout(resolve, 100);
+		});
+	}
+
 	/**
 	 * 
 	 */
-	onPlayerState(old: PlayerState, new_: PlayerState) {
+	private onPlayerState(old: PlayerState, new_: PlayerState) {
+		if (new_ === PlayerState.Playing) {
+			PlayingSnippets.set(this.snippetId, this);
+			this.setControlsStatePlaying();
+		}
 		if (new_ === PlayerState.Stopped) {
+			PlayingSnippets.delete(this.snippetId);
 			this.clearEventMarkers();
 			this.setControlsStateStopped();
-		}
-		if (new_ === PlayerState.Playing) {
-			this.setControlsStatePlaying();
 		}
 	}
 
 	/**
 	 * 
 	 */
-	setControlsStateStopped() {
+	private setControlsStateStopped() {
 		const snippet = this.snippetElement;
 		snippet.classList.remove(this.playingStateName);
 		snippet.classList.add(this.stoppedStateName);
@@ -137,7 +152,7 @@ export class Snippet extends HTMLElement {
 	/**
 	 * 
 	 */
-	setControlsStatePlaying() {
+	private setControlsStatePlaying() {
 		const snippet = this.snippetElement;
 		snippet.classList.remove(this.stoppedStateName);
 		snippet.classList.add(this.playingStateName);
@@ -146,7 +161,7 @@ export class Snippet extends HTMLElement {
 	/**
 	 * 
 	 */
-	clearEventMarkers() {
+	private clearEventMarkers() {
 		for(const mark of this.eventMarkers) {
 			mark.clear();
 		}
@@ -156,7 +171,7 @@ export class Snippet extends HTMLElement {
 	 * 
 	 * @param time 
 	 */
-	updateMarkers(time: number) {
+	private updateMarkers(time: number) {
 		this.clearEventMarkers();
 		const treffer = _(this.document.eventInfos)
 			.map(x => ({diff: Math.abs(time - x.sheetTime), sheetEvents: x.sheetEventInfos}))
@@ -197,6 +212,7 @@ export class Snippet extends HTMLElement {
 	 */
 	async onPlayClicked(ev: MouseEvent) {
 		try {
+			await this.stopAllSippets();
 			this.playerIsFetching = true;
 			await this.startPlayer(ev);
 		} catch(ex) {
@@ -244,12 +260,21 @@ export class Snippet extends HTMLElement {
 	 * 
 	 * @param ev 
 	 */
-	async onStopClicked(ev: MouseEvent) {
-		WM_Player.stop();
+	private async onStopClicked(_ev: MouseEvent) {
+		this.stop();
 	}
 
+	/**
+	 * 
+	 * @param ev 
+	 */
+	public async stop() {
+		await WM_Player.stop();
+	}
+
+
 	// workaround: error messages pushes editor down and the following content will be overlapped
-	editorOverlappingWorkaround(size: number) {
+	private editorOverlappingWorkaround(size: number) {
 		if (!size) {
 			this.snippetElement.style.marginBottom = "";
 			return;
@@ -262,17 +287,16 @@ export class Snippet extends HTMLElement {
 	 * @param message 
 	 * @param type 
 	 */
-	setMessage(message: string, type:string = "info") {
+	private setMessage(message: string, type:string = "info") {
 		const el = this.messagesElement;
 		el.innerHTML = `<span class="${type}">${message}</span>`
 		this.editorOverlappingWorkaround(el.clientHeight*2);
-		
 	}
 
 	/**
 	 * 
 	 */
-	clearMessages() {
+	private clearMessages() {
 		const el = this.messagesElement;
 		el.innerHTML = "";
 		this.editorOverlappingWorkaround(0);
@@ -282,7 +306,7 @@ export class Snippet extends HTMLElement {
 	 * 
 	 * @param error 
 	 */
-	onError(error: ICompilerError) {
+	private onError(error: ICompilerError) {
 		const charOffset = this.scriptToSnippetCharOffset
 		this.editor.setErrorMarker(error.positionBegin - charOffset, error.positionBegin - charOffset + 1);
 		console.error(`werckmeister compiler error: ${error.errorMessage}`);
@@ -331,7 +355,7 @@ export class Snippet extends HTMLElement {
 	/**
 	 * 
 	 */
-	async readAttributes() {
+	private async readAttributes() {
 		const typeAttr = this.attributes.getNamedItem("wm-type");
 		if (typeAttr && typeAttr.value === "single") {
 			this.type = SnippetType.single;
