@@ -154,7 +154,14 @@ export class Workspace extends HTMLElement {
 	/**
 	 * 
 	 */
-	private async onPlayClicked(ev: MouseEvent) {
+	private onPlayClicked(ev: MouseEvent) {
+		this.play(ev);
+	}
+
+		/**
+	 * 
+	 */
+	public async play(ev: MouseEvent | KeyboardEvent) {
 		this.playerIsFetching = true;
 		setTimeout(async () => {
 			try {
@@ -198,9 +205,16 @@ export class Workspace extends HTMLElement {
 	/**
 	 * 
 	 */
-	private async onStopClicked(ev: MouseEvent) {
-		WM_Player.stop();
+	private onStopClicked(_ev: MouseEvent) {
+		this.stop();
+	}
+
+	/**
+	 * 
+	 */
+	public async stop() {
 		this.clearAllEditorMarkers();
+		await WM_Player.stop();
 	}
 
 	private clearAllEditorMarkers() {
