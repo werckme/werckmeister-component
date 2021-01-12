@@ -133,7 +133,7 @@ export class Editor extends HTMLElement {
 	private init() {
 		const el = this.shadowRoot.getElementById("editor");
 		const script = this.getScriptContent(this.innerHTML);
-		this.editorImpl = new EditorImpl(el, script, { theme: CodemirrorTheme });
+		this.editorImpl = new EditorImpl(el, script, { theme: CodemirrorTheme, lineNumbers: true });
 		this.initListener();
 		this.readAttributes()
 	}

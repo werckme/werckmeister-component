@@ -16,7 +16,8 @@ const CodemirrorTheme = "base16-dark";
 export type DocumentIndex = number;
 
 export interface EditorOptions {
-    theme?: string
+    theme?: string,
+    lineNumbers?: boolean
 }
 
 export enum Mode  {
@@ -39,7 +40,8 @@ export class Editor {
         this.editor = CodeMirror(element, {
             value: value,
             theme: options.theme,
-            mode: Mode[Mode.sheet]
+            mode: Mode[Mode.sheet],
+            lineNumbers: options.lineNumbers
         });
     }
 
