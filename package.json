@@ -29,15 +29,13 @@
   "dependencies": {
     "@types/codemirror": "0.0.98",
     "@types/lodash": "^4.14.164",
-    "@werckmeister/compilerjs": "^0.1.56-1",
-    "@werckmeister/midiplayer": "^1.0.0",
+    "@werckmeister/compilerjs": "^0.1.56-2",
+    "@werckmeister/midiplayer": "^1.0.1",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
     "codemirror": "^5.57.0",
     "jquery": "^3.5.1",
     "lodash": "^4.17.20",
-    "werckmeister-midiplayer": "^1.0.57",
-    "werckmeisterjs": "^0.1.5522",
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
