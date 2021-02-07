@@ -1,0 +1,49 @@
+# This is a basic workflow to help you get started with Actions
+name: CI
+on:
+  push:
+    branches:
+      - master
+      - feature/* 
+      - develop
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14     
+      - name: prepare
+        run: npm install
+      - name: build
+        run: npm run deploy
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/**/*
+      - name: set version
+        if: github.ref == 'refs/heads/main'
+        working-directory: dist
+        run: npm version 1.1.6-$VERSION
+        env:
+          VERSION: ${{ github.run_number }}
+      - name: set version
+        if: github.ref != 'refs/heads/main'
+        working-directory: dist
+        run: npm version 1.1.10-dev-$VERSION
+        env:
+          VERSION: ${{ github.run_number }}
+      - name: publish
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+          npm publish --ignore-scripts --access=public
+        working-directory: dist
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

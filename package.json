@@ -1,6 +1,6 @@
 {
   "name": "@werckmeister/components",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "",
   "main": "werckmeister-components.js",
   "scripts": {
@@ -29,7 +29,7 @@
   "dependencies": {
     "@types/codemirror": "0.0.98",
     "@types/lodash": "^4.14.164",
-    "@werckmeister/compilerjs": "^0.1.56-2",
+    "@werckmeister/compilerjs": "^0.1.56-3",
     "@werckmeister/midiplayer": "^1.0.1",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
