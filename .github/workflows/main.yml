@@ -31,7 +31,7 @@ jobs:
       - name: set version
         if: github.ref == 'refs/heads/main'
         working-directory: dist
-        run: npm version 1.1.$VERSION
+        run: npm version 1.1.6-$VERSION
         env:
           VERSION: ${{ github.run_number }}
       - name: set version
@@ -41,4 +41,7 @@ jobs:
         env:
           VERSION: ${{ github.run_number }}
       - name: publish
-        run: cat package.json
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+          npm publish --ignore-scripts --access=public
+        working-directory: dist
