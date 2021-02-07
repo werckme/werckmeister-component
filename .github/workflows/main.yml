@@ -29,13 +29,13 @@ jobs:
           name: dist-${{ github.sha }}
           path: dist/**/*
       - name: set version
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         working-directory: dist
         run: npm version 1.1.6-$VERSION
         env:
           VERSION: ${{ github.run_number }}
       - name: set version
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/master'
         working-directory: dist
         run: npm version 1.1.10-dev-$VERSION
         env:
