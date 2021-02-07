@@ -2,7 +2,7 @@
 name: CI
 on:
   push:
-    - main
+    - master
     - feature/* 
     - develop
   pull_request:
