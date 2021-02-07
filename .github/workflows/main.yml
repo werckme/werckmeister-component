@@ -37,9 +37,8 @@ jobs:
       - name: set version
         if: github.ref != 'refs/heads/main'
         working-directory: dist
-        run: npm version 1.1.10-$BRANCH-$VERSION
+        run: npm version 1.1.10-$GITHUB_REF-$VERSION
         env:
           VERSION: ${{ github.run_number }}
-          BRANCH: ${{ GITHUB_REF }}
       - name: publish
         run: cat package.json
