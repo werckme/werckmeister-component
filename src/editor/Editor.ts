@@ -84,7 +84,7 @@ export class Editor {
      */
     private setMarker(from: DocumentIndex, to: DocumentIndex, className: string): IMarker {
         const begin = this.editor.posFromIndex(from);
-        const end = this.editor.posFromIndex(to);
+        const end = this.editor.posFromIndex(to+1);
         const marker = this.editor.markText(begin, end, {className});
         return marker;
     }

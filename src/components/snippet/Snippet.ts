@@ -6,6 +6,7 @@ import { IWerckmeisterCompiledDocument, ICompilerError } from '../../compiler/Co
 import { PlayerState } from '../../shared/player';
 import { singleSnippetTemplate } from './templates';
 import { fetchText } from '../../shared/http';
+import { kebabCase } from 'lodash';
 const _ = require ('lodash');
 
 const CodemirrorTheme = "dracula";
@@ -49,6 +50,8 @@ export class Snippet extends HTMLElement {
 	private snippetName = "noname.sheet";
 	private scriptToSnippetCharOffset = 0;
 	private _playerIsFetching: boolean;
+	private _defLines: string;
+	public onPlayerStateChanged: (oldState: PlayerState, newSate: PlayerState) => void;
 
 	set playerIsFetching(val: boolean) {
 		this._playerIsFetching = val;
@@ -138,6 +141,9 @@ export class Snippet extends HTMLElement {
 			this.clearEventMarkers();
 			this.setControlsStateStopped();
 		}
+		if (this.onPlayerStateChanged) {
+			this.onPlayerStateChanged(old, new_);
+		}
 	}
 
 	/**
@@ -199,7 +205,7 @@ export class Snippet extends HTMLElement {
 		}
 		this.scriptToSnippetCharOffset = 0;
 		if (this.type === SnippetType.single) {
-			const rendered = singleSnippetTemplate(script, this.bpm); 
+			const rendered = singleSnippetTemplate(script, this.bpm, this._defLines); 
 			this.scriptToSnippetCharOffset = rendered.charOffset;
 			return rendered.script.trim();
 		}
@@ -227,7 +233,7 @@ export class Snippet extends HTMLElement {
 	 * 
 	 * @param ev 
 	 */
-	async startPlayer(ev: MouseEvent) {
+	public async startPlayer(ev: MouseEvent) {
 		this.editor.clearMarkers();
 		this.clearMessages();
 		const script = this.getScriptText();
@@ -372,6 +378,10 @@ export class Snippet extends HTMLElement {
 		const cssRefAttr = this.attributes.getNamedItem("wm-css-url");
 		if (cssRefAttr) {
 			this.loadExternalCss(cssRefAttr.value);
-		}		
+		}
+		const defLines = this.attributes.getNamedItem("wm-def");
+		if (defLines) {
+			this._defLines = defLines.value;
+		}					
 	}
 }
