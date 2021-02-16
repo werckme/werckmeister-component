@@ -269,7 +269,6 @@ export class Snippet extends HTMLElement {
 				path: this.snippetName,
 				data: script
 			}, ...this.getAdditionalSources()];
-			console.log(files)
 			this.document = await WM_Compiler.compile(files);
 		} catch(ex) {
 			this.onError(ex.error);
