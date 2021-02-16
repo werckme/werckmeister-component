@@ -9,11 +9,28 @@ $code
 }
 ]`;
 
+const snippetTemplateText = `
+$defLines
+$code`;
+
 
 
 export const singleSnippetTemplate = (script: string, tempo:number, defLines: string = null) => {
     defLines = defLines || "instrumentDef:ex1  MyDevice  0 0 0;";
     let template = singleSnippetTemplateText
+        .replace("$tempo", tempo.toString())
+        .replace("$defLines", defLines);
+    const charOffset = template.indexOf("$code");
+    template = template.replace("$code", script);
+    return  {
+        script: template,
+        charOffset: charOffset
+    };
+}
+
+export const snippetTemplate = (script: string, tempo:number, defLines: string = null) => {
+    defLines = defLines || "instrumentDef:ex1  MyDevice  0 0 0;";
+    let template = snippetTemplateText
         .replace("$tempo", tempo.toString())
         .replace("$defLines", defLines);
     const charOffset = template.indexOf("$code");

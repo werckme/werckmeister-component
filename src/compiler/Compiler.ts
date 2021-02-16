@@ -159,29 +159,6 @@ export class WerckmeisterCompiler {
         this.cwdFiles.push(path);
     }
 
-    /**
-     * 
-     * @param sheetFile 
-     */
-    async compileSingleSheetFile(sheetFile: IRequestFile): Promise<IWerckmeisterCompiledDocument> {
-        await this.cleanCWD();
-        const wm = await this.module;
-        let strPtr: number = 0;
-        try {
-            await this.writeFileToFS(sheetFile.path, sheetFile.data);
-            strPtr = this.createCompileResult(sheetFile.path);
-        } catch (ex) {
-            console.error(ex)
-        }
-        const resultStr = wm.UTF8ToString(strPtr);
-        wm._free(strPtr);
-        const resultJson = JSON.parse(resultStr);
-        if (resultJson.errorMessage) {
-            throw { error: resultJson };
-        }
-        return resultJson;
-    }
-
     async cleanCWD() {
         const fs = (await this.module).FS;
 

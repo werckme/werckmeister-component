@@ -2,9 +2,9 @@ import { Editor, IMarker } from '../../editor/Editor';
 import { WM_Compiler, WM_Player } from '../../Global';
 import { IMidiplayerEvent } from '../../player/Player';
 import { EventType } from '../../shared/midiEvent';
-import { IWerckmeisterCompiledDocument, ICompilerError } from '../../compiler/Compiler';
+import { IWerckmeisterCompiledDocument, ICompilerError, IRequestFile } from '../../compiler/Compiler';
 import { PlayerState } from '../../shared/player';
-import { singleSnippetTemplate } from './templates';
+import { singleSnippetTemplate, snippetTemplate } from './templates';
 import { fetchText } from '../../shared/http';
 import { kebabCase } from 'lodash';
 const _ = require ('lodash');
@@ -51,6 +51,7 @@ export class Snippet extends HTMLElement {
 	private scriptToSnippetCharOffset = 0;
 	private _playerIsFetching: boolean;
 	private _defLines: string;
+	private _addSources: string;
 	public onPlayerStateChanged: (oldState: PlayerState, newSate: PlayerState) => void;
 
 	set playerIsFetching(val: boolean) {
@@ -204,10 +205,19 @@ export class Snippet extends HTMLElement {
 			return "";
 		}
 		this.scriptToSnippetCharOffset = 0;
+		let defLines:string = undefined;
+		if (this._defLines) {
+			defLines = atob(this._defLines);
+		}		
 		if (this.type === SnippetType.single) {
-			const rendered = singleSnippetTemplate(script, this.bpm, this._defLines); 
+			const rendered = singleSnippetTemplate(script, this.bpm, defLines); 
 			this.scriptToSnippetCharOffset = rendered.charOffset;
 			return rendered.script.trim();
+		}
+		if (defLines) {
+			const rendered = snippetTemplate(script, this.bpm, defLines); 
+			this.scriptToSnippetCharOffset = rendered.charOffset;
+			return rendered.script.trim(); 
 		}
 		return script.trim();
 	}
@@ -229,6 +239,18 @@ export class Snippet extends HTMLElement {
 		}
 	}
 
+	private getAdditionalSources(): IRequestFile[] {
+		if (!this._addSources) {
+			return [];
+		}
+		const strJson = atob(this._addSources);
+		const json = JSON.parse(strJson);
+		if (!Array.isArray(json)) {
+			return [];
+		}
+		return json as IRequestFile[];
+	}
+
 	/**
 	 * 
 	 * @param ev 
@@ -243,10 +265,12 @@ export class Snippet extends HTMLElement {
 		this.snippetDocumentId = null;
 		this.playerIsFetching = true;
 		try {
-			this.document = await WM_Compiler.compileSingleSheetFile({
+			const files:IRequestFile[] = [{
 				path: this.snippetName,
 				data: script
-			});
+			}, ...this.getAdditionalSources()];
+			console.log(files)
+			this.document = await WM_Compiler.compile(files);
 		} catch(ex) {
 			this.onError(ex.error);
 			this.playerIsFetching = true;
@@ -382,6 +406,10 @@ export class Snippet extends HTMLElement {
 		const defLines = this.attributes.getNamedItem("wm-def");
 		if (defLines) {
 			this._defLines = defLines.value;
+		}
+		const additionalSources = this.attributes.getNamedItem("wm-add-sources");
+		if (additionalSources) {
+			this._addSources = additionalSources.value;
 		}					
 	}
 }
