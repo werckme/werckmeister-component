@@ -133,7 +133,6 @@ export class Snippet extends HTMLElement {
 	 * 
 	 */
 	private onPlayerState(old: PlayerState, new_: PlayerState) {
-		debugger
 		if (new_ === PlayerState.Playing) {
 			PlayingSnippets.set(this.snippetId, this);
 			this.setControlsStatePlaying();
@@ -230,13 +229,10 @@ export class Snippet extends HTMLElement {
 	async onPlayClicked(ev: MouseEvent) {
 		try {
 			await this.stopAllSippets();
-			this.playerIsFetching = true;
 			await this.startPlayer(ev);
 		} catch(ex) {
 			this.onError(ex.error);
 			return;
-		} finally {
-			this.playerIsFetching = false;
 		}
 	}
 
@@ -273,7 +269,6 @@ export class Snippet extends HTMLElement {
 			this.document = await WM_Compiler.compile(files);
 		} catch(ex) {
 			this.onError(ex.error);
-			this.playerIsFetching = true;
 			return;
 		}
 		this.snippetDocumentId = _(this.document.midi.sources)
@@ -283,7 +278,11 @@ export class Snippet extends HTMLElement {
 			console.error("werckmeister compiler could not assign main document")
 		}
 		WM_Player.tempo = this.document.midi.bpm;
-		await WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onPlayerState.bind(this));
+		try {
+			await WM_Player.play(this.document.midi.midiData, ev, this.onMidiEvent.bind(this), this.onPlayerState.bind(this));
+		} finally {
+			this.playerIsFetching = false;
+		}
 	}
 
 	/**
