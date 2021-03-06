@@ -46,6 +46,7 @@
     "babel-preset-es2015": "^6.24.1",
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-static-files-copy": "^2.5.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.2",
+    "parcel": "1.12.3"
   }
 }
