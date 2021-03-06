@@ -133,6 +133,7 @@ export class Snippet extends HTMLElement {
 	 * 
 	 */
 	private onPlayerState(old: PlayerState, new_: PlayerState) {
+		debugger
 		if (new_ === PlayerState.Playing) {
 			PlayingSnippets.set(this.snippetId, this);
 			this.setControlsStatePlaying();
