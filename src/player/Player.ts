@@ -27,7 +27,6 @@ export class Player {
     private onPlayerStateChangedCallback: PlayerStateChangedCallback|null = null;
     private state: PlayerState = PlayerState.Stopped;
     private repoUrl: string = null;
-    private audioBufferSize:number = null;
     /**
      * 
      * @param event 
@@ -40,9 +39,6 @@ export class Player {
             this._player.onPlayerStateChanged = this._onPlayerStateChanged.bind(this);
             if (this.repoUrl) {
                 this._player.setRepoUrl(this.repoUrl);
-            }
-            if (this.audioBufferSize) {
-                this._player.bufferSize = this.audioBufferSize;
             }
         }
         return this._player;
