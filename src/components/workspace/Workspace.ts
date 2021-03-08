@@ -267,6 +267,18 @@ export class Workspace extends HTMLElement {
 		if (cssRefAttr) {
 			this.loadExternalCss(cssRefAttr.value);
 		}
+		const audioBufferSize = this.attributes.getNamedItem("wm-audiobuffer-size");
+		if (audioBufferSize) {
+			const size = Number.parseInt(audioBufferSize.value);
+			if (!size) {
+				return;
+			}
+			WM_Player.setAudioBufferSize(size);
+		}
+		const soundfontRepoUrl = this.attributes.getNamedItem("wm-soundfont-url");
+		if (soundfontRepoUrl) {
+			WM_Player.setSoundfontRepoUrl(soundfontRepoUrl.value);
+		}			
     }
     
     public registerEditor(editor: Editor) {

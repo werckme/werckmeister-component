@@ -409,6 +409,18 @@ export class Snippet extends HTMLElement {
 		const additionalSources = this.attributes.getNamedItem("wm-add-sources");
 		if (additionalSources) {
 			this._addSources = additionalSources.value;
-		}					
+		}
+		const audioBufferSize = this.attributes.getNamedItem("wm-audiobuffer-size");
+		if (audioBufferSize) {
+			const size = Number.parseInt(audioBufferSize.value);
+			if (!size) {
+				return;
+			}
+			WM_Player.setAudioBufferSize(size);
+		}
+		const soundfontRepoUrl = this.attributes.getNamedItem("wm-soundfont-url");
+		if (soundfontRepoUrl) {
+			WM_Player.setSoundfontRepoUrl(soundfontRepoUrl.value);
+		}						
 	}
 }
