@@ -116,13 +116,6 @@ export class Player {
         this.state = PlayerState.Playing;
     }
 
-    setAudioBufferSize(size: number) {
-        if (this._player) {
-            this._player.bufferSize = size;
-        } 
-        this.audioBufferSize = size;
-    }
-
     setSoundfontRepoUrl(url: string) {
         if(this._player) {
             this._player.setRepoUrl(url);

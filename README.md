@@ -49,8 +49,5 @@ https://jsfiddle.net/aw702vcg/
 Set an url of an css file, to override the default css of the snippet.
 https://jsfiddle.net/y53647x8/
 
-### `wm-audiobuffer-size` 
-Set the buffer size of the players audio node. Must be power of 2.
-
 ### `wm-soundfont-url`
 Set the repo url. See [Soundfont Server](https://github.com/werckme/soundfont-server).

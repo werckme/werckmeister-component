@@ -31,7 +31,7 @@
     "@types/codemirror": "0.0.98",
     "@types/lodash": "^4.14.164",
     "@werckmeister/compilerjs": "^0.1.56-3",
-    "@werckmeister/midiplayer": "1.0.2-dev-13",
+    "@werckmeister/midiplayer": "1.0.2-dev-15",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
     "codemirror": "^5.57.0",
