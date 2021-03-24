@@ -270,6 +270,8 @@ export class Snippet extends HTMLElement {
 		} catch(ex) {
 			this.onError(ex.error);
 			return;
+		} finally {
+			this.playerIsFetching = false;
 		}
 		this.snippetDocumentId = _(this.document.midi.sources)
 			.find(source => source.path === `/${this.snippetName}`).sourceId;
