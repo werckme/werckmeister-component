@@ -269,9 +269,8 @@ export class Snippet extends HTMLElement {
 			this.document = await WM_Compiler.compile(files);
 		} catch(ex) {
 			this.onError(ex.error);
-			return;
-		} finally {
 			this.playerIsFetching = false;
+			return;
 		}
 		this.snippetDocumentId = _(this.document.midi.sources)
 			.find(source => source.path === `/${this.snippetName}`).sourceId;
