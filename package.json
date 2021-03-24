@@ -30,11 +30,7 @@
   "dependencies": {
     "@types/codemirror": "0.0.98",
     "@types/lodash": "^4.14.164",
-<<<<<<< HEAD
-    "@werckmeister/compilerjs": "^0.1.56-3",
-=======
     "@werckmeister/compilerjs": "0.1.56-77",
->>>>>>> feature/fluidsynth
     "@werckmeister/midiplayer": "1.0.2-31",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
