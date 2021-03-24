@@ -48,3 +48,6 @@ https://jsfiddle.net/aw702vcg/
 ### `wm-css-url`
 Set an url of an css file, to override the default css of the snippet.
 https://jsfiddle.net/y53647x8/
+
+### `wm-soundfont-url`
+Set the repo url. See [Soundfont Server](https://github.com/werckme/soundfont-server).

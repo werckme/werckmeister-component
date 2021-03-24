@@ -7,12 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build --no-source-maps src/werckmeister-components.ts",
     "deploy": "rm -rf dist && npm run build && cp package.json dist && cp README.md dist",
-    "serve-snippet": "parcel test-snippet.html editor.css",
-    "serve-workspace": "parcel test-workspace.html editor.css"
+    "serve-snippet": "parcel --no-source-maps  test-snippet.html editor.css",
+    "serve-workspace": "parcel --no-source-maps test-workspace.html editor.css"
   },
   "staticFiles": {
     "staticPath": [
-      "./node_modules/@werckmeister/compilerjs"
+      "./node_modules/@werckmeister/compilerjs",
+      "./node_modules/@werckmeister/midiplayer"
     ],
     "watcherGlob": "*.wasm"
   },
@@ -30,7 +31,7 @@
     "@types/codemirror": "0.0.98",
     "@types/lodash": "^4.14.164",
     "@werckmeister/compilerjs": "^0.1.56-3",
-    "@werckmeister/midiplayer": "1.0.2-3",
+    "@werckmeister/midiplayer": "1.0.2-31",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
     "codemirror": "^5.57.0",
@@ -43,6 +44,7 @@
     "@babel/preset-typescript": "^7.10.4",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
+    "parcel": "1.12.3",
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-static-files-copy": "^2.5.0",
     "typescript": "^4.0.2"

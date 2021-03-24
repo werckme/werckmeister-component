@@ -26,6 +26,7 @@ export class Player {
     private onMidiEvent: MidiEventCallback|null = null;
     private onPlayerStateChangedCallback: PlayerStateChangedCallback|null = null;
     private state: PlayerState = PlayerState.Stopped;
+    private repoUrl: string = null;
     /**
      * 
      * @param event 
@@ -36,6 +37,9 @@ export class Player {
             this._player.initAudioEnvironment(event);
             this._player.onMidiEvent = this.onEvent.bind(this);
             this._player.onPlayerStateChanged = this._onPlayerStateChanged.bind(this);
+            if (this.repoUrl) {
+                this._player.setRepoUrl(this.repoUrl);
+            }
         }
         return this._player;
     }
@@ -106,6 +110,13 @@ export class Player {
     onPlay() {
         this.onPlayerStateChangedCallback(this.state, PlayerState.Playing);
         this.state = PlayerState.Playing;
+    }
+
+    setSoundfontRepoUrl(url: string) {
+        if(this._player) {
+            this._player.setRepoUrl(url);
+        } 
+        this.repoUrl = url;
     }
 
     /**

@@ -267,6 +267,10 @@ export class Workspace extends HTMLElement {
 		if (cssRefAttr) {
 			this.loadExternalCss(cssRefAttr.value);
 		}
+		const soundfontRepoUrl = this.attributes.getNamedItem("wm-soundfont-url");
+		if (soundfontRepoUrl) {
+			WM_Player.setSoundfontRepoUrl(soundfontRepoUrl.value);
+		}			
     }
     
     public registerEditor(editor: Editor) {
