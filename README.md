@@ -7,7 +7,7 @@ A [web component](https://en.wikipedia.org/wiki/Web_Components) which allows you
 * include the javascript file
 
 ```html
-<script src="https://unpkg.com/werckmeister-components@~1.0.0/werckmeister-components.js"></script>
+<script src="https://unpkg.com/@werckmeister/components@1.1.6-41/werckmeister-components.js"></script>
 ```
 * embed your snippet
 
