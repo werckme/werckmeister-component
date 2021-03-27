@@ -29,7 +29,8 @@ instrument: lead;
 ```
 
 ## Demo
-https://jsfiddle.net/o8tq4ghp/
+https://jsfiddle.net/z8qv5b7j/
+
 
 ## Options
 
@@ -37,17 +38,17 @@ https://jsfiddle.net/o8tq4ghp/
 can be either `default` or `single`. `single` means that the input is treated as one singe voice line such as `c d e f g`.
 In `default`mode the input has to be a valid `werckmeister` source.
 
-https://jsfiddle.net/6dmoun41/
+https://jsfiddle.net/bh4ugc5q/
 
 ### `wm-tempo`
 Set the tempo of an snippet.
 ### `wm-style`
 Inline css rules to set up the apperance of the snippet.
-https://jsfiddle.net/aw702vcg/
+https://jsfiddle.net/zxhgyv2p/
 
 ### `wm-css-url`
 Set an url of an css file, to override the default css of the snippet.
-https://jsfiddle.net/y53647x8/
+https://jsfiddle.net/m01bzg3f/
 
 ### `wm-soundfont-url`
 Set the repo url. See [Soundfont Server](https://github.com/werckme/soundfont-server).
