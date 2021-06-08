@@ -84,7 +84,7 @@ export class WerckmeisterCompiler {
      * before compiling, these files were written to the filesystem
      */
     private cwdFiles: string[] = [];
-    private createCompileResult: (file: string) => number;
+    private createCompileResult: (file: string, beginQuarters: number) => number;
     /**
      * 
      */
@@ -110,7 +110,7 @@ export class WerckmeisterCompiler {
      */
     private prepareModule(module: WerckmeisterModule) {
         this.createCompileResult =
-            module.cwrap('create_compile_result', 'number', ['string']) as (file: string) => number;
+            module.cwrap('create_compile_result', 'number', ['string', 'number']) as (file: string, beginQuarters: number) => number;
     }
 
     /**
@@ -175,7 +175,7 @@ export class WerckmeisterCompiler {
      * 
      * @param sheetFile 
      */
-    async compile(sheetFiles: IRequestFile[]): Promise<IWerckmeisterCompiledDocument> {
+    async compile(sheetFiles: IRequestFile[], beginQuarters:number = 0): Promise<IWerckmeisterCompiledDocument> {
         await this.cleanCWD();
         if (!sheetFiles || sheetFiles.length === 0) {
             throw new CompilerError("no content to compile");
@@ -195,7 +195,7 @@ export class WerckmeisterCompiler {
         if (!mainSheet) {
             throw new CompilerError("missing main sheet file (.sheet)");
         }
-        strPtr = this.createCompileResult(mainSheet.path);
+        strPtr = this.createCompileResult(mainSheet.path, beginQuarters);
         const resultStr = wm.UTF8ToString(strPtr);
         wm._free(strPtr);
         const resultJson = JSON.parse(resultStr);

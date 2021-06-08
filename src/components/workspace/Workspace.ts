@@ -12,7 +12,6 @@ const fs = require('fs');
 const editorCss = fs.readFileSync('./src/components/workspace/workspace.css', 'utf8');
 const editorHtml = fs.readFileSync('./src/components/workspace/workspace.html', 'utf8');
 
-
 const template = document.createElement('template');
 template.innerHTML = `
 <style>
@@ -25,10 +24,20 @@ export class Workspace extends HTMLElement {
 	bpm: number = 120;
 	public onError = (error: ICompilerError) => {};
 	public onCompiled = (document: IWerckmeisterCompiledDocument) => {};
+	public updateMarkersDebounceMillis: number = 50;
     private _playerIsFetching: boolean;
     private editors: Editor[] = [];
     private sourceIdEditorMap: Map<number, Editor> = new Map<number, Editor>();
-
+	private lastEventTimeQuarters:number = 0;
+	private updateMarkersDebounced = _.debounce(this.updateMarkersImpl.bind(this), this.updateMarkersDebounceMillis);
+	private _beginQuarters : number = 0;
+	public get beginQuarters() : number {
+		return this._beginQuarters;
+	}
+	public set beginQuarters(v : number) {
+		this._beginQuarters = Math.max(0, v);
+	}
+	
 
 	getEditorByFileName(filename: string): Editor|undefined {
 		const filenames = this.editors
@@ -76,7 +85,7 @@ export class Workspace extends HTMLElement {
 		this.createElement();
 	}
 
-	private async createElement() {
+	private async createElement(): Promise<void> {
 		this.attachShadow({ mode: 'open' });
 		const newNode = template.content.cloneNode(true);
 		this.shadowRoot.appendChild(newNode);
@@ -86,7 +95,7 @@ export class Workspace extends HTMLElement {
 	/**
 	 * 
 	 */
-	private initListener() {
+	private initListener(): void {
 		const playCta = this.playButtonElement;
 		playCta.addEventListener("click", this.onPlayClicked.bind(this));
 		const stopCta = this.stopButtonElement;
@@ -97,7 +106,13 @@ export class Workspace extends HTMLElement {
 	 * 
 	 * @param time 
 	 */
-	updateMarkers(time: number) {
+	private updateMarkers(time: number): void {
+		this.lastEventTimeQuarters = time;
+		this.updateMarkersDebounced();
+	}
+
+	private updateMarkersImpl(): void {
+		const time = this.lastEventTimeQuarters;
 		this.clearAllEditorMarkers();
 		const treffer:{diff:number, sheetEvents:SheetEventInfo[]} = _(this.document.eventInfos)
 			.map(x => ({diff: Math.abs(time - x.sheetTime), sheetEvents: x.sheetEventInfos}))
@@ -120,7 +135,7 @@ export class Workspace extends HTMLElement {
 	 */
 	private onMidiEvent(ev: IMidiplayerEvent) {
 		if (ev.midiEvent.eventType === EventType.NoteOn) {
-            this.updateMarkers(ev.position);
+            this.updateMarkers(ev.position + this.beginQuarters);
 		}
 	}
 
@@ -170,7 +185,7 @@ export class Workspace extends HTMLElement {
 					data: editor.getScriptText()
 				}));
 				this.clearAllEditorMarkers();
-				this.document = await WM_Compiler.compile(files);
+				this.document = await WM_Compiler.compile(files, this.beginQuarters);
 				this.onCompiled(this.document);
 				this.updateSourceIdMap(this.document);
 			} catch(ex) {
