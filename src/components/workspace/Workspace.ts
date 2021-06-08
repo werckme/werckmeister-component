@@ -64,7 +64,7 @@ export class Workspace extends HTMLElement {
 		return this._playerIsFetching;
 	}
 
-	public playerState: PlayerState;
+	public playerState: PlayerState = PlayerState.Stopped;
 
 	private get workspaceControlsElement(): HTMLElement {
 		return this.shadowRoot.getElementById("wm-controls");
