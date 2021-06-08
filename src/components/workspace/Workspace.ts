@@ -180,6 +180,7 @@ export class Workspace extends HTMLElement {
 	 */
 	public async play(ev: MouseEvent | KeyboardEvent) {
 		this.playerIsFetching = true;
+		this.onPlayerState(this.playerState, PlayerState.Preparing);
 		setTimeout(async () => {
 			try {
 				const files = this.editors.map(editor => ({
@@ -193,6 +194,7 @@ export class Workspace extends HTMLElement {
 			} catch(ex) {
 				this._onError(ex.error || ex);
 				this.playerIsFetching = false;
+				this.onPlayerState(this.playerState, PlayerState.Stopped);
 				return;
 			}
 			WM_Player.tempo = this.document.midi.bpm;
