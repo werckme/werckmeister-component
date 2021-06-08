@@ -23,7 +23,8 @@ export class Workspace extends HTMLElement {
 	document: IWerckmeisterCompiledDocument;
 	bpm: number = 120;
 	public onError = (error: ICompilerError) => {};
-	public onCompiled = (document: IWerckmeisterCompiledDocument) => {};
+	public onCompiled = (document: IWerckmeisterCompiledDocument):void => {};
+	public onStateChanged = (old: PlayerState, new_: PlayerState):void => {};
 	public updateMarkersDebounceMillis: number = 50;
     private _playerIsFetching: boolean;
     private editors: Editor[] = [];
@@ -153,6 +154,7 @@ export class Workspace extends HTMLElement {
 			this.workspaceControlsElement.classList.add("wm-state-playing");
 		}
 		this.playerState = new_;
+		this.onStateChanged(old, new_);
 	}
 
     private updateSourceIdMap(document: IWerckmeisterCompiledDocument) {
