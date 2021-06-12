@@ -247,7 +247,7 @@ export class Workspace extends HTMLElement {
 
 	private clearAllEventMarkers() {
 		for(const editor of this.editors) {
-			editor.clearMarkersExceptWarnings();
+			editor.clearEventMarkers();
 		}
 	}
 

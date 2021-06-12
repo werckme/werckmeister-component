@@ -71,10 +71,10 @@ export class Editor {
     /**
      * 
      */
-    clearMarkersExceptWarnings() {
+    clearEventMarkers() {
         const allMarks = this.editor.getAllMarks();
         for (const mark of allMarks) {
-            if (mark.className === this.warningClass) {
+            if (mark.className === this.warningClass || mark.className === this.errorClass) {
                 continue;
             }
             mark.clear();

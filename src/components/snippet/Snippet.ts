@@ -253,7 +253,7 @@ export class Snippet extends HTMLElement {
 	 * @param ev 
 	 */
 	public async startPlayer(ev: MouseEvent) {
-		this.editor.clearMarkersExceptWarnings();
+		this.editor.clearEventMarkers();
 		this.clearMessages();
 		const script = this.getScriptText();
 		if (!script) {

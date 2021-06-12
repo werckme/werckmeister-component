@@ -50,8 +50,8 @@ export class Editor extends HTMLElement {
 	/**
 	 * 
 	 */
-	public clearMarkersExceptWarnings() {
-		this.editorImpl.clearMarkersExceptWarnings();
+	public clearEventMarkers() {
+		this.editorImpl.clearEventMarkers();
 	}
 
 	/**
