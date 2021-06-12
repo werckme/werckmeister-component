@@ -1,4 +1,4 @@
-import { ICompilerError, SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
+import { ICompilerError, ICompilerWarning, SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
 import { Editor as EditorImpl, IMarker, Mode } from '../../editor/Editor';
 import { fetchText } from '../../shared/http';
 const _ = require ('lodash');
@@ -44,7 +44,14 @@ export class Editor extends HTMLElement {
 	 * 
 	 */
 	public clearAllMarkers() {
-		this.editorImpl.clearMarkers();
+		this.editorImpl.clearAllMarkers();
+	}
+
+	/**
+	 * 
+	 */
+	public clearMarkersExceptWarnings() {
+		this.editorImpl.clearMarkersExceptWarnings();
 	}
 
 	/**
@@ -110,6 +117,10 @@ export class Editor extends HTMLElement {
 	setError(error: ICompilerError) {
 		this.clearAllMarkers();
 		this.editorImpl.setErrorMarker(error.positionBegin, error.positionBegin + 1);
+	}
+
+	addWarning(warning: ICompilerWarning) {
+		this.editorImpl.setWarningMarker(warning.message, warning.positionBegin, warning.positionBegin + 1);
 	}
 
 	/**

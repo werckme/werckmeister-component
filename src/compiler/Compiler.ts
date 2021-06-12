@@ -35,6 +35,13 @@ export interface ICompilerError {
     sourceId: number;
 }
 
+export interface ICompilerWarning {
+    message: string;
+    positionBegin: number;
+    sourceFile: string;
+    sourceId: number;
+}
+
 export class CompilerError implements ICompilerError {
     constructor(public errorMessage: string = "") {
 
@@ -69,12 +76,7 @@ export interface IWerckmeisterCompiledDocument {
             sourceId: number,
             path: string
         }[],
-        warnings: {
-            message: string,
-            positionBegin: number,
-            sourceFile: string, 
-            sourceId: number
-        }[]
+        warnings: ICompilerWarning[]
     }
 }
 

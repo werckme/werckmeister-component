@@ -1,7 +1,7 @@
 import { WM_Compiler, WM_Player } from '../../Global';
 import { IMidiplayerEvent } from '../../player/Player';
 import { EventType } from '../../shared/midiEvent';
-import { IWerckmeisterCompiledDocument, ICompilerError, SheetEventInfo } from '../../compiler/Compiler';
+import { IWerckmeisterCompiledDocument, ICompilerError, SheetEventInfo, ICompilerWarning } from '../../compiler/Compiler';
 import { PlayerState } from '../../shared/player';
 import { Editor } from '../editor/Editor';
 import { fetchText } from '../../shared/http';
@@ -23,6 +23,7 @@ export class Workspace extends HTMLElement {
 	document: IWerckmeisterCompiledDocument;
 	bpm: number = 120;
 	public onError = (error: ICompilerError) => {};
+	public onWarnings = (warnings: ICompilerWarning[]) => {};
 	public onCompiled = (document: IWerckmeisterCompiledDocument):void => {};
 	public onStateChanged = (old: PlayerState, new_: PlayerState):void => {};
 	public updateMarkersDebounceMillis: number = 50;
@@ -114,7 +115,7 @@ export class Workspace extends HTMLElement {
 
 	private updateMarkersImpl(): void {
 		const time = this.lastEventTimeQuarters;
-		this.clearAllEditorMarkers();
+		this.clearAllEventMarkers();
 		const treffer:{diff:number, sheetEvents:SheetEventInfo[]} = _(this.document.eventInfos)
 			.map(x => ({diff: Math.abs(time - x.sheetTime), sheetEvents: x.sheetEventInfos}))
 			.minBy(x => x.diff);
@@ -145,7 +146,7 @@ export class Workspace extends HTMLElement {
 	 */
 	private onPlayerState(old: PlayerState, new_: PlayerState) {
 		if (new_ === PlayerState.Stopped) {
-			this.clearAllEditorMarkers();
+			this.clearAllEventMarkers();
 			this.workspaceControlsElement.classList.remove("wm-state-playing");
 			this.workspaceControlsElement.classList.add("wm-state-stopped");
 		}
@@ -191,6 +192,9 @@ export class Workspace extends HTMLElement {
 				this.document = await WM_Compiler.compile(files, this.beginQuarters);
 				this.onCompiled(this.document);
 				this.updateSourceIdMap(this.document);
+				if(this.document.midi.warnings && this.document.midi.warnings.length > 0) {
+					this._onWarnings(this.document.midi.warnings);
+				}
 			} catch(ex) {
 				this._onError(ex.error || ex);
 				this.playerIsFetching = false;
@@ -232,13 +236,18 @@ export class Workspace extends HTMLElement {
 	 * 
 	 */
 	public async stop() {
-		this.clearAllEditorMarkers();
 		await WM_Player.stop();
 	}
 
 	private clearAllEditorMarkers() {
 		for(const editor of this.editors) {
 			editor.clearAllMarkers();
+		}
+	}
+
+	private clearAllEventMarkers() {
+		for(const editor of this.editors) {
+			editor.clearMarkersExceptWarnings();
 		}
 	}
 
@@ -260,6 +269,15 @@ export class Workspace extends HTMLElement {
 		editor.setError(error);
 	}
 
+
+	private _onWarnings(warnings: ICompilerWarning[]) {
+		for(const warning of warnings) {
+			console.warn(warning.message);
+			const editor = this.getEditorByFileName(warning.sourceFile);
+			editor.addWarning(warning);
+		}
+		this.onWarnings(warnings);
+	}
 
 	/**
 	 * 

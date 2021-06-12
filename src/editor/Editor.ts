@@ -20,7 +20,7 @@ export interface EditorOptions {
     lineNumbers?: boolean
 }
 
-export enum Mode  {
+export enum Mode {
     sheet = 'sheet',
     text = 'text',
     lua = 'lua'
@@ -30,6 +30,7 @@ export class Editor {
     private editor: CodeMirror.Editor;
     private eventMarkClass = "wm-marked";
     private errorClass = "wm-error";
+    private warningClass = "wm-warning";
     /**
      * 
      * @param element 
@@ -70,9 +71,22 @@ export class Editor {
     /**
      * 
      */
-    clearMarkers() {
+    clearMarkersExceptWarnings() {
         const allMarks = this.editor.getAllMarks();
-        for(const mark of allMarks) {
+        for (const mark of allMarks) {
+            if (mark.className === this.warningClass) {
+                continue;
+            }
+            mark.clear();
+        }
+    }
+
+    /**
+     * 
+     */
+    clearAllMarkers() {
+        const allMarks = this.editor.getAllMarks();
+        for (const mark of allMarks) {
             mark.clear();
         }
     }
@@ -82,10 +96,10 @@ export class Editor {
      * @param from 
      * @param to 
      */
-    private setMarker(from: DocumentIndex, to: DocumentIndex, className: string): IMarker {
+    private setMarker(from: DocumentIndex, to: DocumentIndex, className: string, attributes: object=undefined): IMarker {
         const begin = this.editor.posFromIndex(from);
-        const end = this.editor.posFromIndex(to+1);
-        const marker = this.editor.markText(begin, end, {className});
+        const end = this.editor.posFromIndex(to + 1);
+        const marker = this.editor.markText(begin, end, { className, attributes });
         return marker;
     }
 
@@ -105,6 +119,15 @@ export class Editor {
      */
     setErrorMarker(from: DocumentIndex, to: DocumentIndex): IMarker {
         return this.setMarker(from, to, this.errorClass)
+    }
+
+    /**
+     * 
+     * @param from 
+     * @param to 
+     */
+    setWarningMarker(message: string, from: DocumentIndex, to: DocumentIndex): IMarker {
+        return this.setMarker(from, to, this.warningClass, {title: message})
     }
 
     /**

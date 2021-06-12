@@ -29,3 +29,15 @@
 .wm-player-fetching #fetching {
     display: block;
 }
+
+
+.wm-warning::before {
+    content: " ";
+    position: absolute;
+    border-bottom: 3px dashed orange;
+    border-radius: 0;
+    width: 24px;
+    height: 1em;
+    margin-left: 2px;
+    cursor: default;
+}

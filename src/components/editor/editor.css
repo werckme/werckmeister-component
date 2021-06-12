@@ -41,6 +41,17 @@
     margin-left: 8px;
 }
 
+.wm-warning::before {
+    content: " ";
+    position: absolute;
+    border-bottom: 3px dashed orange;
+    width: 24px;
+    height: 1em;
+    margin-top: 0;
+    margin-left: 2px;
+    cursor: default;
+}
+
 
 #btnPlay, #btnStop {
     cursor: pointer;
