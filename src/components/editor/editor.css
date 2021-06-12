@@ -44,11 +44,11 @@
 .wm-warning::before {
     content: " ";
     position: absolute;
-    border-bottom: 3px dashed orange;
-    width: 24px;
+    border-bottom: 2px dotted orange;
+    width: 16px;
     height: 1em;
-    margin-top: 0;
-    margin-left: 2px;
+    margin-top: 5px;
+    margin-left: -3px;
     cursor: default;
 }
 
