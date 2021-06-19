@@ -5,11 +5,12 @@ const _ = require ('lodash');
 
 declare const require;
 const fs = require('fs');
-let codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
 const editorCss = fs.readFileSync('./src/components/editor/editor.css', 'utf8');
 const editorHtml = fs.readFileSync('./src/components/editor/editor.html', 'utf8');
 const CodemirrorTheme = "dracula";
+let codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
 codemirrorCss += fs.readFileSync('./node_modules/codemirror/theme/' + CodemirrorTheme + '.css', 'utf8');
+codemirrorCss += fs.readFileSync('./node_modules/codemirror/addon/hint/show-hint.css', 'utf8');
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -69,6 +70,11 @@ export class Editor extends HTMLElement {
 		setTimeout(this.init.bind(this));
 	}
 
+	private setWerckmeisterMode():void {
+		this.editorImpl.setMode(Mode.sheet);
+		this.editorImpl.activateAutoCompletion();
+	}
+
 	private updateMode() {
 		if (!this.filename) {
 			this.editorImpl.setMode(Mode.text);
@@ -82,7 +88,7 @@ export class Editor extends HTMLElement {
 		const ext = match[1];
 		switch(ext) {
 			case '.sheet'   : 	
-			case '.template': return this.editorImpl.setMode(Mode.sheet);
+			case '.template': return this.setWerckmeisterMode();
 			case '.lua'     : return this.editorImpl.setMode(Mode.lua);
 			default         : return this.editorImpl.setMode(Mode.text);
 		}
