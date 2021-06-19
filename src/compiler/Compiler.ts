@@ -25,7 +25,14 @@ interface WerckmeisterModule {
             parentObject: string
         },
         mkdir: (path: string) => void,
-        unlink: (path: string) => void
+        unlink: (path: string) => void,
+        stat: (path: string) => {
+            mode: number,
+            size: number
+        }
+        isDir: (mode: number) => boolean,
+        isFile: (mode: number) => boolean
+
     };
 }
 

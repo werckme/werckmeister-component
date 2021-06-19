@@ -1,3 +1,5 @@
+import { ILanguageFeatures } from "@werckmeister/language-features";
+
 declare const require;
 const CodeMirror = require("codemirror/lib/codemirror.js");
 require('codemirror/addon/hint/show-hint.js');
@@ -46,7 +48,7 @@ export class Editor {
         });
     }
 
-    public activateAutoCompletion(): void {
+    public activateAutoCompletion(languageFeatures: ILanguageFeatures): void {
         CodeMirror.registerHelper('hint', 'wmAutoComplete', function (editor, options) {
             var cur = editor.getCursor();
             var end = cur.ch,
@@ -69,7 +71,7 @@ export class Editor {
             cm.replaceRange(charToMatch, curretCursorPosition);
             CodeMirror.commands.autocomplete(cm);
         };
-        
+
         this.editor.setOption("extraKeys", {
             'Ctrl-Space': 'autocomplete',
             "'\"'": replaceAndShowAutoComplete.bind(null, '"')
