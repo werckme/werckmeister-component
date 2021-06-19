@@ -1,4 +1,5 @@
 import { Ticks } from "../shared/types";
+import { FileInfo, IFilesystemInspector, Path } from "@werckmeister/language-features";
 
 declare const require
 const WerckmeisterFactory = require('@werckmeister/compilerjs/werckmeister');
@@ -26,6 +27,12 @@ interface WerckmeisterModule {
         mkdir: (path: string) => void,
         unlink: (path: string) => void
     };
+}
+
+class FileSystemInspector implements IFilesystemInspector {
+    ls(path: Path): FileInfo[] {
+        throw new Error("Method not implemented.");
+    }
 }
 
 export interface ICompilerError {
@@ -104,6 +111,10 @@ export class WerckmeisterCompiler {
     async init(module: WerckmeisterModule) {
         this.prepareModule(module);
         await this.prepareFileSystem(module);
+    }
+
+    public getFileSystemInspector(): IFilesystemInspector {
+        return new FileSystemInspector();
     }
 
     /**

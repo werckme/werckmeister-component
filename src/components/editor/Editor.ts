@@ -1,6 +1,8 @@
 import { ICompilerError, ICompilerWarning, SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
 import { Editor as EditorImpl, IMarker, Mode } from '../../editor/Editor';
+import { LanguageFeatures } from '@werckmeister/language-features';
 import { fetchText } from '../../shared/http';
+import { WM_Compiler } from '../../Global';
 const _ = require ('lodash');
 
 declare const require;
@@ -71,8 +73,10 @@ export class Editor extends HTMLElement {
 	}
 
 	private setWerckmeisterMode():void {
+		const fsInspector = WM_Compiler.getFileSystemInspector();
+		const wmLanguageFeatures = new LanguageFeatures(fsInspector);
 		this.editorImpl.setMode(Mode.sheet);
-		this.editorImpl.activateAutoCompletion();
+		this.editorImpl.activateAutoCompletion(wmLanguageFeatures);
 	}
 
 	private updateMode() {
