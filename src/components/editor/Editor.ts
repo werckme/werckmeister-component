@@ -72,8 +72,8 @@ export class Editor extends HTMLElement {
 		setTimeout(this.init.bind(this));
 	}
 
-	private setWerckmeisterMode():void {
-		const fsInspector = WM_Compiler.getFileSystemInspector();
+	private async setWerckmeisterMode():Promise<void> {
+		const fsInspector = await WM_Compiler.getFileSystemInspector();
 		const wmLanguageFeatures = new LanguageFeatures(fsInspector);
 		this.editorImpl.setMode(Mode.sheet);
 		this.editorImpl.activateAutoCompletion(wmLanguageFeatures);
