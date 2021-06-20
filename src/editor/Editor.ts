@@ -1,4 +1,5 @@
-import { ILanguageFeatures } from "@werckmeister/language-features";
+import { ILanguageFeatures, IPathSuggestion } from "@werckmeister/language-features";
+import { ActiveSourceDocument } from "./SourceDocumentImpl";
 
 declare const require;
 const CodeMirror = require("codemirror/lib/codemirror.js");
@@ -48,14 +49,16 @@ export class Editor {
         });
     }
 
-    public activateAutoCompletion(languageFeatures: ILanguageFeatures): void {
-        CodeMirror.registerHelper('hint', 'wmAutoComplete', function (editor, options) {
-            var cur = editor.getCursor();
-            var end = cur.ch,
+    public activateAutoCompletion(languageFeatures: ILanguageFeatures, fileName: string): void {
+        CodeMirror.registerHelper('hint', 'wmAutoComplete', async function (editor, options) {
+            const cur = editor.getCursor();
+            const end = cur.ch,
                 start = end;
-
+            const document = new ActiveSourceDocument(editor, fileName);
+            const suggestions = await languageFeatures.autoComplete(document);
             return {
-                list: ['x', 'y'],
+                list: suggestions.map(x => ({text: x.text, 
+                    className: (x as IPathSuggestion).file.isDirectory ? "isFolder" : "isFile"})),
                 from: CodeMirror.Pos(cur.line, start),
                 to: CodeMirror.Pos(cur.line, end)
             };
@@ -74,7 +77,8 @@ export class Editor {
 
         this.editor.setOption("extraKeys", {
             'Ctrl-Space': 'autocomplete',
-            "'\"'": replaceAndShowAutoComplete.bind(null, '"')
+            "'\"'": replaceAndShowAutoComplete.bind(null, '"'),
+            "'/'": replaceAndShowAutoComplete.bind(null, '/')
         });
     }
 

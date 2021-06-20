@@ -76,7 +76,7 @@ export class Editor extends HTMLElement {
 		const fsInspector = await WM_Compiler.getFileSystemInspector();
 		const wmLanguageFeatures = new LanguageFeatures(fsInspector);
 		this.editorImpl.setMode(Mode.sheet);
-		this.editorImpl.activateAutoCompletion(wmLanguageFeatures);
+		this.editorImpl.activateAutoCompletion(wmLanguageFeatures, this.filename);
 	}
 
 	private updateMode() {
