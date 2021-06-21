@@ -49,7 +49,6 @@ class FileSystemInspector implements IFileSystemInspector {
     public async ls(path: string): Promise<FileInfo[]> {
         const fs = this.module.FS;
         const analyzed = fs.analyzePath(path, false);
-        console.log(analyzed)
         const pathExistsAndIsAFolder = analyzed.exists && analyzed.object && analyzed.object.isFolder;
         if (!pathExistsAndIsAFolder) {
             return [];
@@ -59,6 +58,9 @@ class FileSystemInspector implements IFileSystemInspector {
         for(const fileName in contents) {
             const node = contents[fileName];
             if (this.blacklist.includes(`${analyzed.parentPath}${fileName}`)) {
+                continue;
+            }
+            if (fileName[0] === '_' || fileName[0] === '.') {
                 continue;
             }
             fileInfos.push({
@@ -207,7 +209,7 @@ export class WerckmeisterCompiler {
         }
     }
 
-    private async writeFileToFS(path: string, data: string) {
+    public async writeFileToFS(path: string, data: string) {
         const wm = await this.module;
         wm.FS.writeFile(path,  data);
         this.cwdFiles.push(path);

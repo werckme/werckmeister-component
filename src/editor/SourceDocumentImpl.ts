@@ -12,7 +12,7 @@ export class SourceDocument implements ISourceDocument {
         return this.editor.getRange(toCMCursor(from), toCMCursor(to));
     }
     public async getAbsolutePath(): Promise<string> {
-        return `/${this.fileName}`;
+        return `${this.fileName}`;
     }
 }
 

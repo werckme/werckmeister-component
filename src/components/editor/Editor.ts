@@ -29,6 +29,7 @@ export class Editor extends HTMLElement {
 	}
 	private eventMarkers: IMarker[] = [];
 	private editorImpl: EditorImpl;
+	public initiated: Promise<void>;
 	werckmeisterDocumentId: number;
 
 	public setFilename(newName: string) {
@@ -62,14 +63,19 @@ export class Editor extends HTMLElement {
 	 */
 	constructor() {
 		super();
-		this.createElement();
+		this.initiated = new Promise<void>(resolve => {
+			this.createElement(resolve);
+		});
 	}
 
-	private async createElement() {
+	private async createElement(resolveInit: () => void) {
 		this.attachShadow({ mode: 'open' });
 		const newNode = template.content.cloneNode(true);
 		this.shadowRoot.appendChild(newNode);
-		setTimeout(this.init.bind(this));
+		setTimeout(() => {
+			this.init();
+			resolveInit();
+		});
 	}
 
 	private async setWerckmeisterMode():Promise<void> {

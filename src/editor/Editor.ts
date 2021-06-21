@@ -34,6 +34,7 @@ export class Editor {
     private eventMarkClass = "wm-marked";
     private errorClass = "wm-error";
     private warningClass = "wm-warning";
+    private languageFeatures: ILanguageFeatures;
     /**
      * 
      * @param element 
@@ -49,13 +50,14 @@ export class Editor {
         });
     }
 
-    public activateAutoCompletion(languageFeatures: ILanguageFeatures, fileName: string): void {
-        CodeMirror.registerHelper('hint', 'wmAutoComplete', async function (editor, options) {
+    public activateAutoCompletion(languageFeatures_: ILanguageFeatures, fileName: string): void {
+        this.languageFeatures = languageFeatures_;
+        CodeMirror.registerHelper('hint', 'wmAutoComplete', async (editor, options) => {
             const cur = editor.getCursor();
             const end = cur.ch,
                 start = end;
             const document = new ActiveSourceDocument(editor, fileName);
-            const suggestions = await languageFeatures.autoComplete(document);
+            const suggestions = await this.languageFeatures.autoComplete(document);
             return {
                 list: suggestions.map(x => ({text: x.text, 
                     className: (x as IPathSuggestion).file.isDirectory ? "isFolder" : "isFile"})),
