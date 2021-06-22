@@ -1,5 +1,6 @@
 import { ILanguageFeatures, IPathSuggestion } from "@werckmeister/language-features";
 import { ActiveSourceDocument } from "./SourceDocumentImpl";
+import * as _ from 'lodash';
 
 declare const require;
 const CodeMirror = require("codemirror/lib/codemirror.js");
@@ -60,9 +61,22 @@ export class Editor {
             const suggestions = await this.languageFeatures.autoComplete(document);
             return {
                 list: suggestions.map(x => ({text: x.text, 
-                    className: (x as IPathSuggestion).file.isDirectory ? "isFolder" : "isFile"})),
+                    className: (x as IPathSuggestion).file.isDirectory ? "isFolder" : "isFile",
+                    hint: (cm, x, suggestion) => {
+                        const line:string = cm.getLine(cur.line);
+                        const hint:string = suggestion.text;
+                        // find matching tail: /(t?h?h?e?T?a?i?l?)$/
+                        const tailRegex = new RegExp(`(${_.map(hint, ch => `${ch}?`).join('')})$`, 'g');
+                        const matchingTail = (line.match(tailRegex) || [])[0];
+                        const cutoff = (matchingTail || "").length
+                        console.log(suggestion.text, matchingTail, cutoff)
+                        cm.replaceRange(suggestion.text, 
+                            CodeMirror.Pos(cur.line, start - cutoff), 
+                            CodeMirror.Pos(cur.line, start + cutoff));
+                    }
+                })),
                 from: CodeMirror.Pos(cur.line, start),
-                to: CodeMirror.Pos(cur.line, end)
+                to: CodeMirror.Pos(cur.line, end),
             };
         });
         CodeMirror.commands.autocomplete = (cm) => {
