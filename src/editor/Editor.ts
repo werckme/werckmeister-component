@@ -64,12 +64,19 @@ export class Editor {
                     className: (x as IPathSuggestion).file.isDirectory ? "isFolder" : "isFile",
                     hint: (cm, x, suggestion) => {
                         const line:string = cm.getLine(cur.line);
-                        const hint:string = suggestion.text;
+                        let hint:string = suggestion.text;
                         // find matching tail: /(t?h?h?e?T?a?i?l?)$/
-                        const tailRegex = new RegExp(`(${_.map(hint, ch => `${ch}?`).join('')})$`, 'g');
+                        let regexStr = _.map(hint, ch => `${ch}?`).join('');
+                        regexStr = regexStr.replace(/\./g, '\\.')
+                            .replace(/\(/g, '\\(')
+                            .replace(/\)/g, '\\)')
+                            .replace(/\{/g, '\\{')
+                            .replace(/\}/g, '\\}')
+                            .replace(/\[/g, '\\[')
+                            .replace(/\[/g, '\\]');
+                        const tailRegex = new RegExp(`(${regexStr})$`, 'g');
                         const matchingTail = (line.match(tailRegex) || [])[0];
                         const cutoff = (matchingTail || "").length
-                        console.log(suggestion.text, matchingTail, cutoff)
                         cm.replaceRange(suggestion.text, 
                             CodeMirror.Pos(cur.line, start - cutoff), 
                             CodeMirror.Pos(cur.line, start + cutoff));
