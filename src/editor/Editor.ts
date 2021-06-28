@@ -1,4 +1,4 @@
-import { ILanguageFeatures, IPathSuggestion } from "@werckmeister/language-features";
+import { ILanguageFeatures, IPathSuggestion, ISuggestion } from "@werckmeister/language-features";
 import { ActiveSourceDocument } from "./SourceDocumentImpl";
 import * as _ from 'lodash';
 
@@ -59,9 +59,15 @@ export class Editor {
                 start = end;
             const document = new ActiveSourceDocument(editor, fileName);
             const suggestions = await this.languageFeatures.autoComplete(document);
+            const suggestionClassName = (x: ISuggestion) => {
+                if ((x as IPathSuggestion).file) {
+                    (x as IPathSuggestion).file.isDirectory ? "isFolder" : "isFile"
+                }
+                return "";
+            }
             return {
                 list: suggestions.map(x => ({text: x.text, 
-                    className: (x as IPathSuggestion).file.isDirectory ? "isFolder" : "isFile",
+                    className: suggestionClassName(x),
                     hint: (cm, x, suggestion) => {
                         const line:string = cm.getLine(cur.line);
                         let hint:string = suggestion.text;
@@ -73,7 +79,13 @@ export class Editor {
                             .replace(/\{/g, '\\{')
                             .replace(/\}/g, '\\}')
                             .replace(/\[/g, '\\[')
-                            .replace(/\[/g, '\\]');
+                            .replace(/\[/g, '\\]')
+                            .replace(/\./g, '\\.')
+                            .replace(/\^/g, '\\^')
+                            .replace(/\$/g, '\\$')
+                            .replace(/\\/g, '\\\\')
+                            .replace(/\$/g, '\\$')
+                            .replace(/\*/g, '\\*');
                         const tailRegex = new RegExp(`(${regexStr})$`, 'g');
                         const matchingTail = (line.match(tailRegex) || [])[0];
                         const cutoff = (matchingTail || "").length
@@ -101,7 +113,8 @@ export class Editor {
         this.editor.setOption("extraKeys", {
             'Ctrl-Space': 'autocomplete',
             "'\"'": replaceAndShowAutoComplete.bind(null, '"'),
-            "'/'": replaceAndShowAutoComplete.bind(null, '/')
+            "'/'": replaceAndShowAutoComplete.bind(null, '/'),
+            "'_'": replaceAndShowAutoComplete.bind(null, '_')
         });
     }
 
