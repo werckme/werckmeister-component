@@ -29,6 +29,26 @@ export enum Mode {
     text = 'text',
     lua = 'lua'
 }
+/**
+ * find out what of the hint is already written in the line
+ * @param line 
+ * @param hint 
+ */
+function whatIsAlreadyWritten(line: string, hint: string) {
+    // find matching tail: /(t?h?h?e?T?a?i?l?)$/
+    let regexStr = _.map(hint, ch => `${ch}?`).join('');
+    regexStr = regexStr.replace(/\./g, '\\.')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/\{/g, '\\{')
+    .replace(/\}/g, '\\}')
+    .replace(/\[/g, '\\[')
+    .replace(/\[/g, '\\]')
+    ;
+    const tailRegex = new RegExp(`(${regexStr})$`, 'g');
+    const matchingTail = (line.match(tailRegex) || [])[0];
+    return matchingTail;
+}
 
 export class Editor {
     private editor: CodeMirror.Editor;
@@ -66,30 +86,16 @@ export class Editor {
                 return "";
             }
             return {
-                list: suggestions.map(x => ({text: x.text, 
+                list: suggestions.map(x => ({text: x.displayText, replaceText: x.text,
                     className: suggestionClassName(x),
                     hint: (cm, x, suggestion) => {
+                        // TODO: get the line from ch=0 to current cursor to fix 
+                        // broken replacement if cursor is not at the end
                         const line:string = cm.getLine(cur.line);
-                        let hint:string = suggestion.text;
-                        // find matching tail: /(t?h?h?e?T?a?i?l?)$/
-                        let regexStr = _.map(hint, ch => `${ch}?`).join('');
-                        regexStr = regexStr.replace(/\./g, '\\.')
-                            .replace(/\(/g, '\\(')
-                            .replace(/\)/g, '\\)')
-                            .replace(/\{/g, '\\{')
-                            .replace(/\}/g, '\\}')
-                            .replace(/\[/g, '\\[')
-                            .replace(/\[/g, '\\]')
-                            .replace(/\./g, '\\.')
-                            .replace(/\^/g, '\\^')
-                            .replace(/\$/g, '\\$')
-                            .replace(/\\/g, '\\\\')
-                            .replace(/\$/g, '\\$')
-                            .replace(/\*/g, '\\*');
-                        const tailRegex = new RegExp(`(${regexStr})$`, 'g');
-                        const matchingTail = (line.match(tailRegex) || [])[0];
+                        let hint:string = suggestion.replaceText;
+                        const matchingTail = whatIsAlreadyWritten(line, hint);
                         const cutoff = (matchingTail || "").length
-                        cm.replaceRange(suggestion.text, 
+                        cm.replaceRange(suggestion.replaceText, 
                             CodeMirror.Pos(cur.line, start - cutoff), 
                             CodeMirror.Pos(cur.line, start + cutoff));
                     }
