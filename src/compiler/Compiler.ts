@@ -1,10 +1,19 @@
 import { Ticks } from "../shared/types";
+import { FileInfo, IFileSystemInspector, Path } from "@werckmeister/language-features";
 
 declare const require
 const WerckmeisterFactory = require('@werckmeister/compilerjs/werckmeister');
 const fs = require('fs');
 const werckmeisterAuxiliaryFiles = JSON.parse(fs.readFileSync('./node_modules/@werckmeister/compilerjs/werckmeister-auxiliaries.json', 'utf8'));
 const _ = require ('lodash');
+
+interface FSNode {
+    id: number,
+    mode: number,
+    isFolder: boolean,
+    name: string,
+    contents: { [filename: string]: FSNode }
+}
 
 interface WerckmeisterModule {
     cwrap: (name: string, returnType: string, args: any[]) => CallableFunction;
@@ -15,17 +24,58 @@ interface WerckmeisterModule {
         analyzePath: (path: string, dontResolveLastLink: boolean) => {
             isRoot: boolean,
             exists: boolean,
-            error: Error,
             name: string,
             path: string,
-            object: string,
+            object: FSNode,
             parentExists: boolean,
             parentPath: string,
-            parentObject: string
+            parentObject: string,
         },
         mkdir: (path: string) => void,
-        unlink: (path: string) => void
+        unlink: (path: string) => void,
+        stat: (path: string) => {
+            mode: number,
+            size: number
+        }
+        isDir: (mode: number) => boolean,
+        isFile: (mode: number) => boolean
+
     };
+}
+
+class FileSystemInspector implements IFileSystemInspector {
+    private blacklist = ["/dev", "/home", "/proc", "/tmp"]
+    constructor(private module: WerckmeisterModule) {}
+    public async ls(path: string): Promise<FileInfo[]> {
+        const fs = this.module.FS;
+        const analyzed = fs.analyzePath(path, false);
+        const pathExistsAndIsAFolder = analyzed.exists && analyzed.object && analyzed.object.isFolder;
+        if (!pathExistsAndIsAFolder) {
+            return [];
+        }
+        const fileInfos:FileInfo[] = [];
+        const contents = analyzed.object.contents;
+        for(const fileName in contents) {
+            const node = contents[fileName];
+            if (this.blacklist.includes(`${analyzed.parentPath}${fileName}`)) {
+                continue;
+            }
+            if (fileName[0] === '_' || fileName[0] === '.') {
+                continue;
+            }
+            fileInfos.push({
+                name: fileName,
+                isDirectory: node.isFolder
+            });
+        }
+        return fileInfos;
+    }
+    public async getParentPath(path: any): Promise<string> {
+        const fs = this.module.FS;
+        const analyzed = fs.analyzePath(path, false);
+        return analyzed.parentPath;
+    }
+
 }
 
 export interface ICompilerError {
@@ -106,6 +156,10 @@ export class WerckmeisterCompiler {
         await this.prepareFileSystem(module);
     }
 
+    public async getFileSystemInspector(): Promise<IFileSystemInspector> {
+        return new FileSystemInspector(await this.module);
+    }
+
     /**
      * 
      * @param module 
@@ -155,7 +209,7 @@ export class WerckmeisterCompiler {
         }
     }
 
-    private async writeFileToFS(path: string, data: string) {
+    public async writeFileToFS(path: string, data: string) {
         const wm = await this.module;
         wm.FS.writeFile(path,  data);
         this.cwdFiles.push(path);

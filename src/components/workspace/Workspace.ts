@@ -312,6 +312,12 @@ export class Workspace extends HTMLElement {
     
     public registerEditor(editor: Editor) {
         this.editors.push(editor);
+		editor.initiated.then(() => {
+			// make file visible for suggestions
+			const filename = editor.filename;
+			const text = editor.getScriptText();
+			WM_Compiler.writeFileToFS(filename, text);
+		});
 	}
 	
 	public unregisterEditor(editor: Editor) {

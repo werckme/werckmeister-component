@@ -1,15 +1,18 @@
 import { ICompilerError, ICompilerWarning, SheetEventInfo as ISheetEventInfo } from '../../compiler/Compiler';
 import { Editor as EditorImpl, IMarker, Mode } from '../../editor/Editor';
+import { LanguageFeatures } from '@werckmeister/language-features';
 import { fetchText } from '../../shared/http';
+import { WM_Compiler } from '../../Global';
 const _ = require ('lodash');
 
 declare const require;
 const fs = require('fs');
-let codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
 const editorCss = fs.readFileSync('./src/components/editor/editor.css', 'utf8');
 const editorHtml = fs.readFileSync('./src/components/editor/editor.html', 'utf8');
 const CodemirrorTheme = "dracula";
+let codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
 codemirrorCss += fs.readFileSync('./node_modules/codemirror/theme/' + CodemirrorTheme + '.css', 'utf8');
+codemirrorCss += fs.readFileSync('./node_modules/codemirror/addon/hint/show-hint.css', 'utf8');
 
 const template = document.createElement('template');
 template.innerHTML = `
@@ -26,6 +29,7 @@ export class Editor extends HTMLElement {
 	}
 	private eventMarkers: IMarker[] = [];
 	private editorImpl: EditorImpl;
+	public initiated: Promise<void>;
 	werckmeisterDocumentId: number;
 
 	public setFilename(newName: string) {
@@ -59,14 +63,26 @@ export class Editor extends HTMLElement {
 	 */
 	constructor() {
 		super();
-		this.createElement();
+		this.initiated = new Promise<void>(resolve => {
+			this.createElement(resolve);
+		});
 	}
 
-	private async createElement() {
+	private async createElement(resolveInit: () => void) {
 		this.attachShadow({ mode: 'open' });
 		const newNode = template.content.cloneNode(true);
 		this.shadowRoot.appendChild(newNode);
-		setTimeout(this.init.bind(this));
+		setTimeout(() => {
+			this.init();
+			resolveInit();
+		});
+	}
+
+	private async setWerckmeisterMode():Promise<void> {
+		const fsInspector = await WM_Compiler.getFileSystemInspector();
+		const wmLanguageFeatures = new LanguageFeatures(fsInspector);
+		this.editorImpl.setMode(Mode.sheet);
+		this.editorImpl.activateAutoCompletion(wmLanguageFeatures, this.filename);
 	}
 
 	private updateMode() {
@@ -82,7 +98,7 @@ export class Editor extends HTMLElement {
 		const ext = match[1];
 		switch(ext) {
 			case '.sheet'   : 	
-			case '.template': return this.editorImpl.setMode(Mode.sheet);
+			case '.template': return this.setWerckmeisterMode();
 			case '.lua'     : return this.editorImpl.setMode(Mode.lua);
 			default         : return this.editorImpl.setMode(Mode.text);
 		}
