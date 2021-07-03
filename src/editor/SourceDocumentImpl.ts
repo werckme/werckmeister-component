@@ -14,6 +14,9 @@ export class SourceDocument implements ISourceDocument {
     public async getAbsolutePath(): Promise<string> {
         return `${this.fileName}`;
     }
+    public async getLine(lineNr): Promise<string> {
+        return this.editor.getLine(lineNr);
+    }
 }
 
 export class ActiveSourceDocument extends SourceDocument implements IActiveSourceDocument {

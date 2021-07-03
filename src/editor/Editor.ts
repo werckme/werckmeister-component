@@ -50,6 +50,15 @@ function whatIsAlreadyWritten(line: string, hint: string) {
     return matchingTail;
 }
 
+/**
+ * returns all characters after `_parameter=`
+ * @param line 
+ * @param hint 
+ */
+function whatParameterValueIsAlreadyWritten(line: string, hint: string) {
+    return (line.match(/.*="?(.*)/) || [])[1];
+}
+
 export class Editor {
     private editor: CodeMirror.Editor;
     private eventMarkClass = "wm-marked";
@@ -86,18 +95,22 @@ export class Editor {
                 return "";
             }
             return {
-                list: suggestions.map(x => ({text: x.displayText, replaceText: x.text,
+                list: suggestions.map(x => ({text: x.displayText, replaceText: x.text, isValueSuggestion: !!(x as any).parameter,
                     className: suggestionClassName(x),
                     hint: (cm, x, suggestion) => {
-                        // TODO: get the line from ch=0 to current cursor to fix 
-                        // broken replacement if cursor is not at the end
-                        const line:string = cm.getLine(cur.line);
+                        const isValue = suggestion.isValueSuggestion;
+                        const line:string = cm.getRange({line:cur.line, ch:0}, {line: cur.line, ch: cur.ch});
                         let hint:string = suggestion.replaceText;
-                        const matchingTail = whatIsAlreadyWritten(line, hint);
-                        const cutoff = (matchingTail || "").length
+                        const matchingTail = isValue ? whatParameterValueIsAlreadyWritten(line, hint) : whatIsAlreadyWritten(line, hint);
+                        let cutoff = (matchingTail || "").length;
+                        const colStart = start - cutoff;
+                        let colEnd = start + cutoff;
+                        if (colStart !== colEnd) {
+                            colEnd -= 1;
+                        }
                         cm.replaceRange(suggestion.replaceText, 
-                            CodeMirror.Pos(cur.line, start - cutoff), 
-                            CodeMirror.Pos(cur.line, start + cutoff));
+                            CodeMirror.Pos(cur.line, colStart), 
+                            CodeMirror.Pos(cur.line, colEnd));
                     }
                 })),
                 from: CodeMirror.Pos(cur.line, start),
@@ -120,7 +133,8 @@ export class Editor {
             'Ctrl-Space': 'autocomplete',
             "'\"'": replaceAndShowAutoComplete.bind(null, '"'),
             "'/'": replaceAndShowAutoComplete.bind(null, '/'),
-            "'_'": replaceAndShowAutoComplete.bind(null, '_')
+            "'_'": replaceAndShowAutoComplete.bind(null, '_'),
+            "'='": replaceAndShowAutoComplete.bind(null, '=')
         });
     }
 
