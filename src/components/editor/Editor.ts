@@ -195,8 +195,9 @@ export class Editor extends HTMLElement {
 		}
 	}
 
-	public update() {
+	public async update(): Promise<void> {
 		this.editorImpl.update();
+		await this.setWerckmeisterMode();
 	}
 
 	isClean() {
