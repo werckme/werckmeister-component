@@ -90,11 +90,11 @@ export class Editor {
             const suggestions = await this.languageFeatures.autoComplete(document);
             const suggestionClassName = (x: ISuggestion) => {
                 if ((x as IPathSuggestion).file) {
-                    (x as IPathSuggestion).file.isDirectory ? "isFolder" : "isFile"
+                    return (x as IPathSuggestion).file.isDirectory ? "isFolder" : "isFile"
                 }
                 return "";
             }
-            return {
+            const hints = {
                 list: suggestions.map(x => ({text: x.displayText, replaceText: x.text, isValueSuggestion: !!(x as any).parameter,
                     className: suggestionClassName(x),
                     hint: (cm, x, suggestion) => {
@@ -116,7 +116,10 @@ export class Editor {
                 from: CodeMirror.Pos(cur.line, start),
                 to: CodeMirror.Pos(cur.line, end),
             };
+            console.log(hints)
+            return hints;
         });
+    
         CodeMirror.commands.autocomplete = (cm) => {
             cm.showHint({
                 hint: CodeMirror.hint.wmAutoComplete,
