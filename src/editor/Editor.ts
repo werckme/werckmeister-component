@@ -116,7 +116,6 @@ export class Editor {
                 from: CodeMirror.Pos(cur.line, start),
                 to: CodeMirror.Pos(cur.line, end),
             };
-            console.log(hints)
             return hints;
         });
     
