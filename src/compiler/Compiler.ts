@@ -46,7 +46,12 @@ interface WerckmeisterModule {
 class FileSystemInspector implements IFileSystemInspector {
     private blacklist = ["/dev", "/home", "/proc", "/tmp"]
     constructor(private module: WerckmeisterModule) {}
-    public async ls(path: string): Promise<FileInfo[]> {
+    
+    public async resolve(basePath: Path, path: Path): Promise<Path> {
+        return path.replace('./', basePath);
+    }
+
+    public async ls(path: Path): Promise<FileInfo[]> {
         const fs = this.module.FS;
         const analyzed = fs.analyzePath(path, false);
         const pathExistsAndIsAFolder = analyzed.exists && analyzed.object && analyzed.object.isFolder;
@@ -70,7 +75,7 @@ class FileSystemInspector implements IFileSystemInspector {
         }
         return fileInfos;
     }
-    public async getParentPath(path: any): Promise<string> {
+    public async getParentPath(path: Path): Promise<Path> {
         const fs = this.module.FS;
         const analyzed = fs.analyzePath(path, false);
         return analyzed.parentPath;
