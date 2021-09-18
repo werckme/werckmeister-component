@@ -100,6 +100,7 @@ export class Editor extends HTMLElement {
 			case '.sheet'   : 	
 			case '.template': return this.setWerckmeisterMode();
 			case '.lua'     : return this.editorImpl.setMode(Mode.lua);
+			case '.conductions'     : return this.editorImpl.setMode(Mode.conductions);
 			default         : return this.editorImpl.setMode(Mode.text);
 		}
 	}
