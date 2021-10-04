@@ -53,6 +53,10 @@ instrument: rhythm;
         workspace.registerEditor(document.getElementById('ed2'));
         workspace.onError = (ex) => console.log(ex);
         workspace.onCompiled = (doc) => console.log(doc);
+        workspace.getPlayerImpl().playerTaskVisitor = {
+            newTasks: (tasks) => console.log(tasks),
+            done: (task) => console.log(task)
+        };
         setTimeout(() => {
             document.getElementById('ed1').update();
             document.getElementById('ed1').clearHistory();
