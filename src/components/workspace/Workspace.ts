@@ -1,5 +1,5 @@
 import { WM_Compiler, WM_Player } from '../../Global';
-import { IMidiplayerEvent } from '../../player/Player';
+import { IMidiplayerEvent, Player } from '../../player/Player';
 import { EventType } from '../../shared/midiEvent';
 import { IWerckmeisterCompiledDocument, ICompilerError, SheetEventInfo, ICompilerWarning } from '../../compiler/Compiler';
 import { PlayerState } from '../../shared/player';
@@ -328,6 +328,10 @@ export class Workspace extends HTMLElement {
 		this.editors.splice(idx, 1);
 	}
 	
+	public getPlayerImpl(): Player {
+		return WM_Player;
+	}
+
 	isClean() {
         return _.every(this.editors, (editor) => editor.isClean());
     }

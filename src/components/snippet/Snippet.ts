@@ -1,6 +1,6 @@
 import { Editor, IMarker } from '../../editor/Editor';
 import { WM_Compiler, WM_Player } from '../../Global';
-import { IMidiplayerEvent } from '../../player/Player';
+import { IMidiplayerEvent, Player } from '../../player/Player';
 import { EventType } from '../../shared/midiEvent';
 import { IWerckmeisterCompiledDocument, ICompilerError, IRequestFile } from '../../compiler/Compiler';
 import { PlayerState } from '../../shared/player';
@@ -194,6 +194,10 @@ export class Snippet extends HTMLElement {
 			const marker = this.editor.setEventMarker(sheetEvent.beginPosition-charOffset, sheetEvent.beginPosition-charOffset + 1);
 			this.eventMarkers.push(marker);
 		}
+	}
+
+	public getPlayerImpl(): Player {
+		return WM_Player;
 	}
 
 	/**

@@ -3,7 +3,7 @@ declare const require;
 
 import { Quarters } from "../shared/types";
 import * as _ from 'lodash';
-import { WerckmeisterMidiPlayer,PlayerState as MidiPlayerState } from '@werckmeister/midiplayer';
+import { WerckmeisterMidiPlayer,PlayerState as MidiPlayerState, TaskVisitor } from '@werckmeister/midiplayer';
 import { IMidiEvent } from "werckmeister-midiplayer/IMidiEvent";
 import { MidiEvent } from "../shared/midiEvent";
 import { PlayerState } from "../shared/player";
@@ -23,6 +23,7 @@ export class Player {
     private _player: WerckmeisterMidiPlayer;
     private _currentMidifile: any;
     public tempo = 120;
+    public playerTaskVisitor: TaskVisitor;
     private onMidiEvent: MidiEventCallback|null = null;
     private onPlayerStateChangedCallback: PlayerStateChangedCallback|null = null;
     private state: PlayerState = PlayerState.Stopped;
@@ -31,7 +32,7 @@ export class Player {
      * 
      * @param event 
      */
-    private getPlayer(event: MouseEvent | KeyboardEvent): any {
+    private getPlayer(event: MouseEvent | KeyboardEvent): WerckmeisterMidiPlayer {
         if (!this._player) {
             this._player = new WerckmeisterMidiPlayer();
             this._player.initAudioEnvironment(event);
@@ -72,8 +73,8 @@ export class Player {
      * @param midiBase64 
      * @param player 
      */
-    private async loadFile(midiBase64: string, player): Promise<void> {
-        await player.load(midiBase64);
+    private async loadFile(midiBase64: string, player: WerckmeisterMidiPlayer): Promise<void> {
+        await player.load(midiBase64, this.playerTaskVisitor);
     }
     
     /**
@@ -81,7 +82,7 @@ export class Player {
      * @param midiBase64 
      * @param event needed to initiate sound output
      */
-    async play(midiBase64: string, event: MouseEvent | KeyboardEvent, onMidiEvent: MidiEventCallback = null, onPlayerState: PlayerStateChangedCallback = null) {
+    public async play(midiBase64: string, event: MouseEvent | KeyboardEvent, onMidiEvent: MidiEventCallback = null, onPlayerState: PlayerStateChangedCallback = null) {
         const player = await this.getPlayer(event);
         try {
             await this.loadFile(midiBase64, player);
