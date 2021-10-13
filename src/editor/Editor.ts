@@ -7,6 +7,7 @@ const CodeMirror = require("codemirror/lib/codemirror.js");
 require('codemirror/addon/hint/show-hint.js');
 require('codemirror/mode/lua/lua.js');
 require("./SheetMode");
+require("./ConductionsSheetMode");
 
 export interface IMarker {
     /**
@@ -27,7 +28,8 @@ export interface EditorOptions {
 export enum Mode {
     sheet = 'sheet',
     text = 'text',
-    lua = 'lua'
+    lua = 'lua',
+    conductions = 'conductions'
 }
 /**
  * find out what of the hint is already written in the line
