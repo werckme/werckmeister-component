@@ -34,7 +34,6 @@ export class Editor extends HTMLElement {
 
 	public setFilename(newName: string) {
 		this._filename = newName;
-		this.updateMode();
 	}
 
 	/**
