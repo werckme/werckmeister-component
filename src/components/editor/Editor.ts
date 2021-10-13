@@ -85,7 +85,7 @@ export class Editor extends HTMLElement {
 		this.editorImpl.activateAutoCompletion(wmLanguageFeatures, this.filename);
 	}
 
-	private updateMode() {
+	private async updateMode(): Promise<void> {
 		if (!this.filename) {
 			this.editorImpl.setMode(Mode.text);
 			return;
@@ -98,7 +98,7 @@ export class Editor extends HTMLElement {
 		const ext = match[1];
 		switch(ext) {
 			case '.sheet'   : 	
-			case '.template': return this.setWerckmeisterMode();
+			case '.template': return await this.setWerckmeisterMode();
 			case '.lua'     : return this.editorImpl.setMode(Mode.lua);
 			case '.conductions'     : return this.editorImpl.setMode(Mode.conductions);
 			default         : return this.editorImpl.setMode(Mode.text);
@@ -198,7 +198,7 @@ export class Editor extends HTMLElement {
 
 	public async update(): Promise<void> {
 		this.editorImpl.update();
-		await this.setWerckmeisterMode();
+		await this.updateMode();
 	}
 
 	isClean() {
