@@ -32,7 +32,7 @@
     "@types/lodash": "^4.14.164",
     "@werckmeister/compilerjs": "0.1.60-301",
     "@werckmeister/language-features": "1.0.0-35",
-    "@werckmeister/midiplayer": "1.0.2-35",
+    "@werckmeister/midiplayer": "1.0.2-37",
     "babel-core": "^6.26.3",
     "babel-polyfill": "^6.26.0",
     "codemirror": "^5.57.0",
@@ -45,8 +45,8 @@
     "@babel/preset-typescript": "^7.10.4",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
-    "parcel": "1.12.3",
-    "parcel-bundler": "^1.12.4",
+    "parcel": "^1.12.3",
+    "parcel-bundler": "^1.12.5",
     "parcel-plugin-static-files-copy": "^2.5.0",
     "typescript": "^4.0.2"
   }
