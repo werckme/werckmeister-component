@@ -1,5 +1,5 @@
 import { Editor, IMarker } from '../../editor/Editor';
-import { WM_Compiler, WM_Player } from '../../Global';
+import { resetCompiler, WM_Compiler, WM_Player } from '../../Global';
 import { IMidiplayerEvent, Player } from '../../player/Player';
 import { EventType } from '../../shared/midiEvent';
 import { IWerckmeisterCompiledDocument, ICompilerError, IRequestFile } from '../../compiler/Compiler';
@@ -257,6 +257,7 @@ export class Snippet extends HTMLElement {
 	 * @param ev 
 	 */
 	public async startPlayer(ev: MouseEvent) {
+		await resetCompiler();
 		this.editor.clearEventMarkers();
 		this.clearMessages();
 		const script = this.getScriptText();

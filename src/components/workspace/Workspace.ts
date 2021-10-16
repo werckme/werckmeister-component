@@ -1,4 +1,4 @@
-import { WM_Compiler, WM_Player } from '../../Global';
+import { resetCompiler, WM_Compiler, WM_Player } from '../../Global';
 import { IMidiplayerEvent, Player } from '../../player/Player';
 import { EventType } from '../../shared/midiEvent';
 import { IWerckmeisterCompiledDocument, ICompilerError, SheetEventInfo, ICompilerWarning } from '../../compiler/Compiler';
@@ -180,6 +180,7 @@ export class Workspace extends HTMLElement {
 	 * 
 	 */
 	public async play(ev: MouseEvent | KeyboardEvent) {
+		await resetCompiler();
 		this.playerIsFetching = true;
 		this.onPlayerState(this.playerState, PlayerState.Preparing);
 		setTimeout(async () => {
@@ -208,6 +209,7 @@ export class Workspace extends HTMLElement {
 	}
 
 	public async download(filename: string = "WerckmeisterMidi.mid") {
+		await resetCompiler();
 		try {
             const files = this.editors.map(editor => ({
                 path: editor.filename,
