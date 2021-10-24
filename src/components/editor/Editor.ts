@@ -185,6 +185,7 @@ export class Editor extends HTMLElement {
 		const fileName = this.attributes.getNamedItem("wm-filename");
 		if (fileName) {
 			this.setFilename(fileName.value);
+			this.updateMode();
 		}		
 	}
 
