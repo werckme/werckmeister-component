@@ -51,7 +51,8 @@ export class Snippet extends HTMLElement {
 	private scriptToSnippetCharOffset = 0;
 	private _playerIsFetching: boolean;
 	private _defLines: string;
-	private _addSources: string;
+	private _addSourcesBase64String: string;
+	private _addSources: IRequestFile[];
 	public onPlayerStateChanged: (oldState: PlayerState, newSate: PlayerState) => void;
 
 	set playerIsFetching(val: boolean) {
@@ -252,10 +253,13 @@ export class Snippet extends HTMLElement {
 	}
 
 	private getAdditionalSources(): IRequestFile[] {
-		if (!this._addSources) {
+		if (this._addSources) {
+			return this._addSources;			
+		}
+		if (!this._addSourcesBase64String) {
 			return [];
 		}
-		const strJson = atob(this._addSources);
+		const strJson = atob(this._addSourcesBase64String);
 		const json = JSON.parse(strJson);
 		if (!Array.isArray(json)) {
 			return [];
@@ -373,8 +377,7 @@ export class Snippet extends HTMLElement {
 		if (workspaceUrl) {
 			const workspace = await this.getWorkspaceFormUrl(workspaceUrl.value);
 			const main = workspace.find(x => x.path === MainSheetFile);
-			const additionalSources = workspace.filter(file => file.path !== MainSheetFile)
-			this._addSources = btoa(JSON.stringify(additionalSources));
+			this._addSources = workspace.filter(file => file.path !== MainSheetFile)
 			return main.data;
 		}	
 		const dataAttr = this.attributes.getNamedItem("wm-data");
@@ -438,7 +441,7 @@ export class Snippet extends HTMLElement {
 		}
 		const additionalSources = this.attributes.getNamedItem("wm-add-sources");
 		if (additionalSources) {
-			this._addSources = additionalSources.value;
+			this._addSourcesBase64String = additionalSources.value;
 		}
 		const soundfontRepoUrl = this.attributes.getNamedItem("wm-soundfont-url");
 		if (soundfontRepoUrl) {
