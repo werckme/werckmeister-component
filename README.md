@@ -52,3 +52,6 @@ https://jsfiddle.net/m01bzg3f/
 
 ### `wm-soundfont-url`
 Set the repo url. See [Soundfont Server](https://github.com/werckme/soundfont-server).
+
+### `wm-workspace-url`
+Uses a workspace url as source. E.g.: "https://sambag.uber.space/api-wm/conductor16thHighHat"

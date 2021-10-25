@@ -10,7 +10,7 @@ import { kebabCase } from 'lodash';
 const _ = require ('lodash');
 
 const CodemirrorTheme = "dracula";
-
+const MainSheetFile = 'main.sheet';
 declare const require;
 const fs = require('fs');
 var codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
@@ -235,9 +235,20 @@ export class Snippet extends HTMLElement {
 			await this.stopAllSippets();
 			await this.startPlayer(ev);
 		} catch(ex) {
-			this.onError(ex.error);
+			if (ex.error) {
+				this.onError(ex.error);
+			} else {
+				console.log(ex);
+			}
 			return;
 		}
+	}
+
+	private async getWorkspaceFormUrl(url: string) {
+		const request = await fetch(url);
+		const workspaceJson = await request.json();
+		let files = workspaceJson.files as IRequestFile[];
+		return files;
 	}
 
 	private getAdditionalSources(): IRequestFile[] {
@@ -251,6 +262,7 @@ export class Snippet extends HTMLElement {
 		}
 		return json as IRequestFile[];
 	}
+	
 
 	/**
 	 * 
@@ -273,7 +285,11 @@ export class Snippet extends HTMLElement {
 			}, ...this.getAdditionalSources()];
 			this.document = await WM_Compiler.compile(files);
 		} catch(ex) {
-			this.onError(ex.error);
+			if (ex.error) {
+				this.onError(ex.error);
+			} else {
+				console.log(ex)
+			}
 			this.playerIsFetching = false;
 			return;
 		}
@@ -352,7 +368,15 @@ export class Snippet extends HTMLElement {
 	 * 
 	 * @param text 
 	 */
-	getScriptContent(text: string): string {
+	private async getScriptContent(text: string): Promise<string> {
+		const workspaceUrl = this.attributes.getNamedItem("wm-workspace-url");
+		if (workspaceUrl) {
+			const workspace = await this.getWorkspaceFormUrl(workspaceUrl.value);
+			const main = workspace.find(x => x.path === MainSheetFile);
+			const additionalSources = workspace.filter(file => file.path !== MainSheetFile)
+			this._addSources = btoa(JSON.stringify(additionalSources));
+			return main.data;
+		}	
 		const dataAttr = this.attributes.getNamedItem("wm-data");
 		if(dataAttr) {
 			return atob(dataAttr.value);
@@ -367,9 +391,9 @@ export class Snippet extends HTMLElement {
 	/**
 	 * 
 	 */
-	init() {
+	async init() {
 		const el = this.shadowRoot.getElementById("editor");
-		const script = this.getScriptContent(this.innerHTML);
+		const script = await this.getScriptContent(this.innerHTML);
 		this.editor = new Editor(el, script, { theme: CodemirrorTheme });
 		this.setControlsStateStopped();
 		this.initListener();
@@ -419,6 +443,6 @@ export class Snippet extends HTMLElement {
 		const soundfontRepoUrl = this.attributes.getNamedItem("wm-soundfont-url");
 		if (soundfontRepoUrl) {
 			WM_Player.setSoundfontRepoUrl(soundfontRepoUrl.value);
-		}						
+		}				
 	}
 }
