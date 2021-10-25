@@ -398,7 +398,6 @@ export class Snippet extends HTMLElement {
 		const el = this.shadowRoot.getElementById("editor");
 		const script = await this.getScriptContent(this.innerHTML);
 		this.editor = new Editor(el, script, { theme: CodemirrorTheme });
-		setTimeout(this.editor.update.bind(this.editor));
 		this.setControlsStateStopped();
 		this.initListener();
 		this.readAttributes()
