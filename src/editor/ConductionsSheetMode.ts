@@ -33,6 +33,7 @@ CodeMirror.defineSimpleMode("conductions", {
         { regex: new RegExp(`${declarations.join('|')}`), token: "property"},
         { regex: /[0-9]\s*%{0,1}/, token: "number"},
         { regex: /--.*/, token: "comment" },
+        { regex: /.*--WM-HIDDEN-LINE\s*$/, token: "comment wm-hidden-line"},
     ],
     // The meta property contains global information about the mode. It
     // can contain properties like lineComment, which are supported by
