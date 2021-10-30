@@ -401,6 +401,15 @@ export class Snippet extends HTMLElement {
 		this.setControlsStateStopped();
 		this.initListener();
 		this.readAttributes()
+		this.applyHiddenLineHack();
+	}
+
+	applyHiddenLineHack() {
+		const elements: NodeListOf<HTMLElement> = this.shadowRoot.querySelectorAll('.cm-wm-hidden-line');
+		for(const el of Array.from(elements)) {
+			const lineel = el.parentElement.parentElement;
+			lineel.classList.add('wm-hidden-line');
+		}
 	}
 
 	/**
