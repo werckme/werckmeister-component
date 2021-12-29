@@ -273,6 +273,7 @@ export class Snippet extends HTMLElement {
 	 * @param ev 
 	 */
 	public async startPlayer(ev: MouseEvent) {
+		await WM_Player.prepare(ev);
 		await resetCompiler();
 		this.editor.clearEventMarkers();
 		this.clearMessages();

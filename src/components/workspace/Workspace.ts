@@ -180,6 +180,7 @@ export class Workspace extends HTMLElement {
 	 * 
 	 */
 	public async play(ev: MouseEvent | KeyboardEvent) {
+		await WM_Player.prepare(ev);
 		await resetCompiler();
 		this.playerIsFetching = true;
 		this.onPlayerState(this.playerState, PlayerState.Preparing);

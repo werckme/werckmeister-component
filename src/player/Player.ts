@@ -28,14 +28,15 @@ export class Player {
     private onPlayerStateChangedCallback: PlayerStateChangedCallback|null = null;
     private state: PlayerState = PlayerState.Stopped;
     private repoUrl: string = null;
+
     /**
      * 
      * @param event 
      */
-    private getPlayer(event: MouseEvent | KeyboardEvent): WerckmeisterMidiPlayer {
+    private async getPlayer(event: MouseEvent | KeyboardEvent): Promise<WerckmeisterMidiPlayer> {
         if (!this._player) {
             this._player = new WerckmeisterMidiPlayer();
-            this._player.initAudioEnvironment(event);
+            await this._player.initAudioEnvironment(event);
             this._player.onMidiEvent = this.onEvent.bind(this);
             this._player.onPlayerStateChanged = this._onPlayerStateChanged.bind(this);
             if (this.repoUrl) {
@@ -43,6 +44,10 @@ export class Player {
             }
         }
         return this._player;
+    }
+
+    public async prepare(event: MouseEvent | KeyboardEvent): Promise<void> {
+        await this.getPlayer(event);
     }
 
     private _onPlayerStateChanged(old: MidiPlayerState, _new: MidiPlayerState) {
