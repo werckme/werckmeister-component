@@ -17,6 +17,8 @@ const selectors = [
     "onBar",
     "nthBar",
     "channel",
+    "all",
+    "withTag"
 ];
 
 const declarations = [
