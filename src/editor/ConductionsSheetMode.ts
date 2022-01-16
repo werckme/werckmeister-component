@@ -34,6 +34,7 @@ CodeMirror.defineSimpleMode("conductions", {
         { regex: new RegExp(`${selectors.join('|')}`), token: "tag"},
         { regex: new RegExp(`${declarations.join('|')}`), token: "property"},
         { regex: /[0-9]\s*%{0,1}/, token: "number"},
+        { regex: /@{0,1}\w+/, token: "string"},
         { regex: /--.*/, token: "comment" },
         { regex: /.*--WM-HIDDEN-LINE\s*$/, token: "comment wm-hidden-line"},
     ],
