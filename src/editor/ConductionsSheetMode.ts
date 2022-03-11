@@ -18,7 +18,10 @@ const selectors = [
     "nthBar",
     "channel",
     "all",
-    "withTag"
+    "withTag",
+    "degree",
+    "chord",
+    "octave"
 ];
 
 const declarations = [
