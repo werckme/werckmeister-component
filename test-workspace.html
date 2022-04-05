@@ -71,11 +71,31 @@ channel(1) nthBar(2) {
 ]]>
     </werckmeister-editor>
 
+    <werckmeister-editor id="ed4" wm-filename="_editor.css" wm-style="height: 500px;">
+<![CDATA[
+.wm-marked::before {
+    content: " ";
+    background: url("https://c.tenor.com/bt6881I9uLwAAAAi/mario-walking.gif");
+    background-size: contain;
+    position: absolute;
+    border-top: none;
+    border-left: none;
+    border-radius: 0;
+    height: 60px;
+    width: 48px;
+    transform: rotate(0);
+    margin-top: -59px;
+    margin-left: -24px;
+}
+]]>
+    </werckmeister-editor>
+
     <script>
         const workspace = document.getElementById('workspace');
         workspace.registerEditor(document.getElementById('ed1'));
         workspace.registerEditor(document.getElementById('ed2'));
         workspace.registerEditor(document.getElementById('ed3'));
+        workspace.registerEditor(document.getElementById('ed4'));
         workspace.onError = (ex) => console.log(ex);
         workspace.onCompiled = (doc) => console.log(doc);
         workspace.getPlayerImpl().playerTaskVisitor = {
@@ -91,7 +111,6 @@ channel(1) nthBar(2) {
             ev.preventDefault();
             workspace.download("AutumnLeaves.mid");
         }
-
     </script>
 </body>
 

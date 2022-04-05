@@ -14,6 +14,8 @@ let codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.cs
 codemirrorCss += fs.readFileSync('./node_modules/codemirror/theme/' + CodemirrorTheme + '.css', 'utf8');
 codemirrorCss += fs.readFileSync('./node_modules/codemirror/addon/hint/show-hint.css', 'utf8');
 
+const additionalStyleId = "additional-style";
+
 const template = document.createElement('template');
 template.innerHTML = `
 <style>
@@ -31,6 +33,17 @@ export class Editor extends HTMLElement {
 	private editorImpl: EditorImpl;
 	public initiated: Promise<void>;
 	werckmeisterDocumentId: number;
+
+	public setAdditionalCssText(cssText: string) {
+		
+		let styleEl = this.shadowRoot.querySelector(`#${additionalStyleId}`) as HTMLElement;
+		if (!styleEl) {
+			styleEl = document.createElement("style");
+			styleEl.id = "additional-style";
+			this.shadowRoot.appendChild(styleEl);
+		}
+		styleEl.innerText = cssText;
+	}
 
 	public setFilename(newName: string) {
 		this._filename = newName;

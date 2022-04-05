@@ -205,7 +205,7 @@ export class Editor {
      * @param to 
      */
     setEventMarker(from: DocumentIndex, to: DocumentIndex): IMarker {
-        return this.setMarker(from, to, this.eventMarkClass)
+        return this.setMarker(from, to, this.eventMarkClass, {"wm-doc-pos": from})
     }
 
     /**

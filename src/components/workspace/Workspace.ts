@@ -12,13 +12,17 @@ const fs = require('fs');
 const editorCss = fs.readFileSync('./src/components/workspace/workspace.css', 'utf8');
 const editorHtml = fs.readFileSync('./src/components/workspace/workspace.html', 'utf8');
 
-const template = document.createElement('template');
-template.innerHTML = `
+const extraCssFilename = '_editor.css';
+
+const templateText = `
 <style>
 ${editorCss}
 </style>
 ${editorHtml}
 `;
+
+const template = document.createElement('template');
+template.innerHTML = templateText
 export class Workspace extends HTMLElement {
 	document: IWerckmeisterCompiledDocument;
 	bpm: number = 120;
@@ -40,6 +44,11 @@ export class Workspace extends HTMLElement {
 		this._beginQuarters = Math.max(0, v);
 	}
 	
+	public setAdditionalCssText(cssText: string) {
+		for(const editor of this.editors) {
+			editor.setAdditionalCssText(cssText);
+		}
+	}
 
 	getEditorByFileName(filename: string): Editor|undefined {
 		const filenames = this.editors
@@ -176,7 +185,19 @@ export class Workspace extends HTMLElement {
 		this.play(ev);
 	}
 
-		/**
+	private getEditorFiles(): {path: string, data: string}[] {
+		const files = this.editors.map(editor => ({
+			path: editor.filename,
+			data: editor.getScriptText()
+		}));
+		const extraCssFile = files.find(x => x.path === extraCssFilename);
+		if (extraCssFile) {
+			this.setAdditionalCssText(extraCssFile.data);
+		}
+		return files.filter(x => x.path !== extraCssFilename);
+	}
+
+	/**
 	 * 
 	 */
 	public async play(ev: MouseEvent | KeyboardEvent) {
@@ -186,10 +207,7 @@ export class Workspace extends HTMLElement {
 		this.onPlayerState(this.playerState, PlayerState.Preparing);
 		setTimeout(async () => {
 			try {
-				const files = this.editors.map(editor => ({
-					path: editor.filename,
-					data: editor.getScriptText()
-				}));
+				const files = this.getEditorFiles();
 				this.clearAllEditorMarkers();
 				this.document = await WM_Compiler.compile(files, this.beginQuarters);
 				this.onCompiled(this.document);
