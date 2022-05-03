@@ -111,6 +111,7 @@ export class Editor extends HTMLElement {
 		switch(ext) {
 			case '.sheet'   : 	
 			case '.template': return await this.setWerckmeisterMode();
+			case '.config': return await this.setWerckmeisterMode();
 			case '.lua'     : return this.editorImpl.setMode(Mode.lua);
 			case '.conductions'     : return this.editorImpl.setMode(Mode.conductions);
 			default         : return this.editorImpl.setMode(Mode.text);
