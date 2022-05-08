@@ -3,7 +3,10 @@ import { Editor as EditorImpl, IMarker, Mode } from '../../editor/Editor';
 import { LanguageFeatures } from '@werckmeister/language-features';
 import { fetchText } from '../../shared/http';
 import { WM_Compiler } from '../../Global';
+import { EnvironmentInspector } from './EnvironmentInspector';
 const _ = require ('lodash');
+
+const environmentInspector = new EnvironmentInspector();
 
 declare const require;
 const fs = require('fs');
@@ -92,7 +95,7 @@ export class Editor extends HTMLElement {
 
 	private async setWerckmeisterMode():Promise<void> {
 		const fsInspector = await WM_Compiler.getFileSystemInspector();
-		const wmLanguageFeatures = new LanguageFeatures(fsInspector);
+		const wmLanguageFeatures = new LanguageFeatures(fsInspector, environmentInspector);
 		this.editorImpl.setMode(Mode.sheet);
 		this.editorImpl.activateAutoCompletion(wmLanguageFeatures, this.filename);
 	}

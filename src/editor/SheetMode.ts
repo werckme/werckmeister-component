@@ -15,7 +15,8 @@ CodeMirror.defineSimpleMode("sheet", {
     ],
     wmCommandValues: [
         {regex: /;|\//, token: "text", next: "start"},
-        {regex: /[^;\/]*/, token: "variable"},
+        {regex: /".*?"/, token: "string"},
+        {regex: /[^;\/"]+/, token: "variable"},
     ],
     // The meta property contains global information about the mode. It
     // can contain properties like lineComment, which are supported by

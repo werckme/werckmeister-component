@@ -215,6 +215,7 @@ export class Workspace extends HTMLElement {
 				if(this.document.midi.warnings && this.document.midi.warnings.length > 0) {
 					this._onWarnings(this.document.midi.warnings);
 				}
+				WM_Player.prepareDevices(this.document);
 			} catch(ex) {
 				this._onError(ex.error || ex);
 				this.playerIsFetching = false;

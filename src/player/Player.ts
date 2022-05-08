@@ -7,6 +7,8 @@ import { WerckmeisterMidiPlayer,PlayerState as MidiPlayerState, TaskVisitor } fr
 import { IMidiEvent } from "werckmeister-midiplayer/IMidiEvent";
 import { MidiEvent } from "../shared/midiEvent";
 import { PlayerState } from "../shared/player";
+import { IDeviceInfo, IWerckmeisterCompiledDocument } from "../compiler/Compiler";
+import { SoundFontRepoMap } from "../components/editor/EnvironmentInspector";
 
 declare const MIDI: any;
 
@@ -28,7 +30,8 @@ export class Player {
     private onPlayerStateChangedCallback: PlayerStateChangedCallback|null = null;
     private state: PlayerState = PlayerState.Stopped;
     private repoUrl: string = null;
-
+    private repoMap = SoundFontRepoMap;
+    
     /**
      * 
      * @param event 
@@ -48,6 +51,10 @@ export class Player {
 
     public async prepare(event: MouseEvent | KeyboardEvent): Promise<void> {
         await this.getPlayer(event);
+    }
+
+    public setRepoUrl(url: string) {
+        this._player.setRepoUrl(url);
     }
 
     private _onPlayerStateChanged(old: MidiPlayerState, _new: MidiPlayerState) {
@@ -103,6 +110,29 @@ export class Player {
         this.onPlay();
         await player.play();
 	}
+
+    public setDevice(device: IDeviceInfo) {
+        const deviceUrl = device.fontName.trim();
+        if (deviceUrl.startsWith('https://')) {
+            this.setRepoUrl(deviceUrl);
+            return;
+        }
+        const repoUrl = this.repoMap[device.fontName];
+        if (!repoUrl) {
+            throw new Error(`unknown font for device ${device.name}. Possible values are ${_.keys(this.repoMap).map(x => `"${x}"`).join(", ")}`);
+        }
+        this.setRepoUrl(repoUrl);
+    }
+
+    public prepareDevices(document: IWerckmeisterCompiledDocument) {
+        if (!document.midi.devices || document.midi.devices.length === 0) {
+            return;
+        }
+        if(document.midi.devices?.length > 1) {
+            throw new Error(`only one device is supported you defined ${document.midi.devices.length}.`);
+        }
+        this.setDevice(_.first(document.midi.devices));
+    }
 
     onStop() {
         if (this.onPlayerStateChangedCallback) {

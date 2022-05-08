@@ -117,6 +117,11 @@ export interface SheetEventInfo {
     sourceId: number
 }
 
+export interface IDeviceInfo {
+    name: string,
+    fontName: string
+}
+
 export interface IWerckmeisterCompiledDocument {
     eventInfos: {
         pid: number,
@@ -131,7 +136,8 @@ export interface IWerckmeisterCompiledDocument {
             sourceId: number,
             path: string
         }[],
-        warnings: ICompilerWarning[]
+        warnings: ICompilerWarning[],
+        devices: IDeviceInfo[]
     }
 }
 

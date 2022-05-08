@@ -116,3 +116,7 @@
     font-size: 13px;
     font-style: italic;
 }
+
+.CodeMirror-line.wm-hidden-line {
+    display: none;
+}
