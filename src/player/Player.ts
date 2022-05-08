@@ -3,19 +3,21 @@ declare const require;
 
 import { Quarters } from "../shared/types";
 import * as _ from 'lodash';
-import { WerckmeisterMidiPlayer,PlayerState as MidiPlayerState, TaskVisitor } from '@werckmeister/midiplayer';
+import { WerckmeisterMidiPlayer, PlayerState as MidiPlayerState, TaskVisitor } from '@werckmeister/midiplayer';
 import { IMidiEvent } from "werckmeister-midiplayer/IMidiEvent";
 import { MidiEvent } from "../shared/midiEvent";
 import { PlayerState } from "../shared/player";
 import { IDeviceInfo, IWerckmeisterCompiledDocument } from "../compiler/Compiler";
 import { SoundFontRepoMap } from "../components/editor/EnvironmentInspector";
 
+export const MainSheetFile = 'main.sheet';
+
 declare const MIDI: any;
 
 
 export interface IMidiplayerEvent {
-	position: Quarters;
-	midiEvent: any;
+    position: Quarters;
+    midiEvent: any;
 }
 
 export type MidiEventCallback = (event: IMidiplayerEvent) => void;
@@ -26,12 +28,12 @@ export class Player {
     private _currentMidifile: any;
     public tempo = 120;
     public playerTaskVisitor: TaskVisitor;
-    private onMidiEvent: MidiEventCallback|null = null;
-    private onPlayerStateChangedCallback: PlayerStateChangedCallback|null = null;
+    private onMidiEvent: MidiEventCallback | null = null;
+    private onPlayerStateChangedCallback: PlayerStateChangedCallback | null = null;
     private state: PlayerState = PlayerState.Stopped;
     private repoUrl: string = null;
     private repoMap = SoundFontRepoMap;
-    
+
     /**
      * 
      * @param event 
@@ -58,9 +60,9 @@ export class Player {
     }
 
     private _onPlayerStateChanged(old: MidiPlayerState, _new: MidiPlayerState) {
-		if (_new === MidiPlayerState.Stopped) {
+        if (_new === MidiPlayerState.Stopped) {
             this.onStop();
-		}
+        }
     }
 
     /**
@@ -69,14 +71,14 @@ export class Player {
      */
     onEvent(playerEvent: IMidiEvent) {
         const ticks = playerEvent.absPositionTicks;
-		const midiEvent = new MidiEvent();
-		// tslint:disable-next-line: no-bitwise
-		midiEvent.eventType = playerEvent.type;
-		midiEvent.parameter1 = playerEvent.param1;
-		midiEvent.parameter2 = playerEvent.param2;
+        const midiEvent = new MidiEvent();
+        // tslint:disable-next-line: no-bitwise
+        midiEvent.eventType = playerEvent.type;
+        midiEvent.parameter1 = playerEvent.param1;
+        midiEvent.parameter2 = playerEvent.param2;
         midiEvent.channel = playerEvent.channel;
         if (this.onMidiEvent) {
-            this.onMidiEvent({position: ticks/this._player.ppq, midiEvent});
+            this.onMidiEvent({ position: ticks / this._player.ppq, midiEvent });
         }
     }
 
@@ -88,7 +90,7 @@ export class Player {
     private async loadFile(midiBase64: string, player: WerckmeisterMidiPlayer): Promise<void> {
         await player.load(midiBase64, this.playerTaskVisitor);
     }
-    
+
     /**
      * 
      * @param midiBase64 
@@ -109,7 +111,7 @@ export class Player {
         this.onPlayerStateChangedCallback = onPlayerState;
         this.onPlay();
         await player.play();
-	}
+    }
 
     public setDevice(device: IDeviceInfo) {
         const deviceUrl = device.fontName.trim();
@@ -125,13 +127,22 @@ export class Player {
     }
 
     public prepareDevices(document: IWerckmeisterCompiledDocument) {
-        if (!document.midi.devices || document.midi.devices.length === 0) {
-            return;
+        try {
+            if (!document.midi.devices || document.midi.devices.length === 0) {
+                return;
+            }
+            if (document.midi.devices?.length > 1) {
+                throw new Error(`only one device is supported you defined ${document.midi.devices.length}.`);
+            }
+            this.setDevice(_.first(document.midi.devices));
+        } catch (ex) {
+            throw {
+                errorMessage: ex.message,
+                positionBegin: 0,
+                sourceFile: MainSheetFile,
+                sourceId: _.first(document.midi.sources.filter(x => x.path == `/${MainSheetFile}`).map(x => x.sourceId))
+            };
         }
-        if(document.midi.devices?.length > 1) {
-            throw new Error(`only one device is supported you defined ${document.midi.devices.length}.`);
-        }
-        this.setDevice(_.first(document.midi.devices));
     }
 
     onStop() {
@@ -149,22 +160,22 @@ export class Player {
     }
 
     setSoundfontRepoUrl(url: string) {
-        if(this._player) {
+        if (this._player) {
             this._player.setRepoUrl(url);
-        } 
+        }
         this.repoUrl = url;
     }
 
     /**
      * 
      */
-	async stop() {
+    async stop() {
         if (this.state === PlayerState.Stopped) {
             return;
         }
         this.onStop();
-		const player = await this.getPlayer(null);
+        const player = await this.getPlayer(null);
         player.stop();
-	}
+    }
 
 }

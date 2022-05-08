@@ -1,6 +1,6 @@
 import { Editor, IMarker } from '../../editor/Editor';
 import { resetCompiler, WM_Compiler, WM_Player } from '../../Global';
-import { IMidiplayerEvent, Player } from '../../player/Player';
+import { IMidiplayerEvent, MainSheetFile as PlayerMainSheetFile, Player } from '../../player/Player';
 import { EventType } from '../../shared/midiEvent';
 import { IWerckmeisterCompiledDocument, ICompilerError, IRequestFile } from '../../compiler/Compiler';
 import { PlayerState } from '../../shared/player';
@@ -10,7 +10,8 @@ import { kebabCase } from 'lodash';
 const _ = require ('lodash');
 
 const CodemirrorTheme = "dracula";
-const MainSheetFile = 'main.sheet';
+const MainSheetFile = PlayerMainSheetFile;
+
 declare const require;
 const fs = require('fs');
 var codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
