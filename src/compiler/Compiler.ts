@@ -226,6 +226,14 @@ export class WerckmeisterCompiler {
         this.cwdFiles.push(path);
     }
 
+    public async removeFileFromFS(path: string) {
+        const info = fs.analyzePath(path, false);
+        if (!info.exists) {
+            throw new Error(`file "${path}" does not exist.`);
+        }
+        fs.unlink(path);
+    }
+
     async cleanCWD() {
         const fs = (await this.module).FS;
 

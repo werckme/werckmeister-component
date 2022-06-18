@@ -341,6 +341,14 @@ export class Workspace extends HTMLElement {
 			WM_Compiler.writeFileToFS(filename, text);
 		});
 	}
+
+	public addFile(path: string, data: string) {
+		WM_Compiler.writeFileToFS(path, data);
+	}
+
+	public removeFile(path: string) {
+		WM_Compiler.removeFileFromFS(path);
+	}
 	
 	public unregisterEditor(editor: Editor) {
 		const idx = this.editors.indexOf(editor);
