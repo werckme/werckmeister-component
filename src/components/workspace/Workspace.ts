@@ -184,12 +184,13 @@ export class Workspace extends HTMLElement {
 	private onPlayClicked(ev: MouseEvent) {
 		this.play(ev);
 	}
-
+	private additionalFiles: {path: string, data: string}[] = [];
 	private getEditorFiles(): {path: string, data: string}[] {
 		const files = this.editors.map(editor => ({
 			path: editor.filename,
 			data: editor.getScriptText()
-		}));
+		})).concat(this.additionalFiles);
+
 		const extraCssFile = files.find(x => x.path === extraCssFilename);
 		if (extraCssFile) {
 			this.setAdditionalCssText(extraCssFile.data);
@@ -342,12 +343,16 @@ export class Workspace extends HTMLElement {
 		});
 	}
 
-	public addFile(path: string, data: string) {
-		WM_Compiler.writeFileToFS(path, data);
+	public addFile(path: string, data: string): void {
+		this.additionalFiles.push({path, data})
 	}
 
-	public removeFile(path: string) {
-		WM_Compiler.removeFileFromFS(path);
+	public removeFile(path: string): void {
+		const index = this.additionalFiles.findIndex(x => x.path === path);
+		if (index < 0) {
+			return;
+		}
+		this.additionalFiles.splice(index, 1);
 	}
 	
 	public unregisterEditor(editor: Editor) {
