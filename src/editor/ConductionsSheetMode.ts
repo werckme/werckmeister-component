@@ -21,7 +21,8 @@ const selectors = [
     "withTag",
     "degree",
     "chord",
-    "octave"
+    "octave",
+    "phrase"
 ];
 
 const declarations = [
