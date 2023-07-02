@@ -30,7 +30,7 @@
   "dependencies": {
     "@types/codemirror": "0.0.98",
     "@types/lodash": "^4.14.164",
-    "@werckmeister/compilerjs": "1.3.0-610",
+    "@werckmeister/compilerjs": "1.4.0-693",
     "@werckmeister/language-features": "1.0.0-59",
     "@werckmeister/midiplayer": "1.0.2-42",
     "babel-core": "^6.26.3",
