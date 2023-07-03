@@ -100,6 +100,9 @@ export class Player {
         const player = await this.getPlayer(event);
         try {
             await this.loadFile(midiBase64, player);
+            if (!player.hasEvents()) {
+                return;
+            }
         } catch (ex) {
             this._currentMidifile = null;
             console.error(ex);
