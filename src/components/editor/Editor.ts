@@ -112,6 +112,7 @@ export class Editor extends HTMLElement {
 		}
 		const ext = match[1];
 		switch(ext) {
+			case '.part'    :
 			case '.sheet'   : 	
 			case '.template': return await this.setWerckmeisterMode();
 			case '.config': return await this.setWerckmeisterMode();
