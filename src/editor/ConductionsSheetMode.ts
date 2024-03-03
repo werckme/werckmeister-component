@@ -22,7 +22,9 @@ const selectors = [
     "degree",
     "chord",
     "octave",
-    "phrase"
+    "phrase",
+    "template",
+    "voice"
 ];
 
 const declarations = [
