@@ -35,12 +35,14 @@ const declarations = [
 CodeMirror.defineSimpleMode("conductions", {
     // The start state contains the rules that are intially used
     start: [
-        { regex: new RegExp(`${selectors.join('|')}`), token: "tag"},
-        { regex: new RegExp(`${declarations.join('|')}`), token: "property"},
-        { regex: /[0-9]\s*%{0,1}/, token: "number"},
-        { regex: /@{0,1}\w+/, token: "string"},
+        { regex: new RegExp(`${selectors.join('|')}`), token: "tag" },
+        { regex: new RegExp(`${declarations.join('|')}`), token: "property" },
+        { regex: /[0-9]\s*%{0,1}/, token: "number" },
+        { regex: /@{0,1}\w+/, token: "string" },
         { regex: /--.*/, token: "comment" },
-        { regex: /.*--WM-HIDDEN-LINE\s*$/, token: "comment wm-hidden-line"},
+        { regex: /\/\*.*\*\//, token: "comment" },
+        { regex: /.*--WM-HIDDEN-LINE\s*$/, token: "comment wm-hidden-line" },
+        { regex: /\/\*/, token: "comment", next: "comment" },
     ],
     // The meta property contains global information about the mode. It
     // can contain properties like lineComment, which are supported by
@@ -49,5 +51,10 @@ CodeMirror.defineSimpleMode("conductions", {
     meta: {
         dontIndentStates: ["comment"],
         lineComment: "--"
-    }
+    },
+    // The multi-line comment state.
+    comment: [
+        { regex: /.*?\*\//, token: "comment", next: "start" },
+        { regex: /.*/, token: "comment" }
+    ],
 });

@@ -17,7 +17,7 @@ device: MyDevice webPlayer _useFont="FluidR3-GM";
 instrumentDef:lead _onDevice=MyDevice _ch=0 _pc=0;
 instrumentDef:rhythm _onDevice=MyDevice _ch=1 _pc=0;
 instrumentDef:bass _onDevice=MyDevice _ch=2 _pc=0;
-
+/*
 -- melody track
 [
 instrument: lead;
@@ -26,11 +26,12 @@ instrument: lead;
     r4 e f# g | c'1~ | c'4 d e f# | b2 b2~ |
 }
 ]
-
+*/
 -- accomp track
 [
 type: accomp;
 {
+    /template: myAccomp/
     r | A-7 | D7 | Gmaj7 |
 }
 ]
