@@ -140,3 +140,20 @@ downloadEl.onclick = (ev) => {
 }
 ```
 
+## worskapce Options
+### wm-css-url
+Load a custom CSS file to override the default styling of the editor.
+
+### wm-soundfont-url
+Set the repo url. See [Soundfont Server](https://github.com/werckme/soundfont-server).
+
+### wm-onerror
+sets an error callback
+
+## Editor options
+### wm-style
+sets the style content to the underlying editor component
+### wm-css-url
+Load a custom CSS file to override the default styling of the editor.
+### wm-filename
+Defines a filename for the editor file. This file is accessable for the compiler.
