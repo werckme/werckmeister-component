@@ -130,7 +130,7 @@ workspace.onCompiled = (doc) => console.log("Compiled successfully:", doc);
 
 ## 🎵 MIDI Export
 
-To trigger MIDI file download after compilation:
+To trigger MIDI file download:
 
 ```js
 const downloadEl = document.querySelector("#download");
