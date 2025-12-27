@@ -1,9 +1,10 @@
-# werckmeister-component
+# 🎼  werckmeister-component
 
 A [web component](https://en.wikipedia.org/wiki/Web_Components) which allows you to embed werckmeister snippets on your website.
 
 ## How to use
 
+### snippet
 * include the javascript file
 
 ```html
@@ -55,3 +56,104 @@ Set the repo url. See [Soundfont Server](https://github.com/werckme/soundfont-se
 
 ### `wm-workspace-url`
 Uses a workspace url as source. E.g.: "https://sambag.uber.space/api-wm/conductor16thHighHat"
+
+
+### workspace
+#### Using `<werckmeister-workspace>` to use several editors (for example in different tabs)
+
+---
+
+## 🔌 Step 1: Include the Component Script
+
+Add the Werckmeister Components script to your HTML:
+
+```html
+<script src="https://unpkg.com/@werckmeister/components/werckmeister-components.js"></script>
+```
+
+---
+
+## 🧱 Step 2: Add a `<werckmeister-workspace>` and Editor
+
+Define a workspace `<werckmeister-editor>`. Each editor can contain a werckmeister document.
+
+Example:
+
+```html
+<werckmeister-workspace id="workspace"></werckmeister-workspace>
+
+<werckmeister-editor
+  id="ed1"
+  wm-filename="main.sheet"
+  wm-style="height: 700px;"
+>
+using "chords/default.chords";
+
+tempo: 140;
+device: MyDevice webPlayer _useFont="FluidR3-GM";
+instrumentDef:lead _onDevice=MyDevice _ch=0 _pc=0;
+instrumentDef:rhythm _onDevice=MyDevice _ch=1 _pc=0;
+instrumentDef:bass _onDevice=MyDevice _ch=2 _pc=0;
+
+-- melody track
+[
+instrument: lead;
+{
+    \p
+    r4 e f# g | c'1~ | c'4 d e f# | b2 b2~ |
+}
+]
+</werckmeister-editor>
+
+<a href id="download">Download MIDI</a>
+```
+
+---
+
+## ⚙️ Step 3: Register the Editor in JavaScript
+
+Link your editor to the workspace using JavaScript:
+
+```js
+const workspace = document.getElementById('workspace');
+workspace.registerEditor(document.getElementById('ed1'));
+```
+
+You can also hook into events:
+
+```js
+workspace.onError = (ex) => console.log("Error:", ex);
+workspace.onCompiled = (doc) => console.log("Compiled successfully:", doc);
+```
+
+---
+
+## 🎵 MIDI Export
+
+To trigger MIDI file download:
+
+```js
+const downloadEl = document.querySelector("#download");
+downloadEl.onclick = (ev) => {
+    ev.preventDefault();
+    workspace.download("myFile.mid");
+}
+```
+
+## worskapce Options
+### wm-css-url
+Load a custom CSS file to override the default styling of the editor.
+
+### wm-soundfont-url
+Set the repo url. See [Soundfont Server](https://github.com/werckme/soundfont-server).
+
+### wm-onerror
+sets an error callback
+
+## Editor options
+### wm-style
+sets the style content to the underlying editor component
+### wm-css-url
+Load a custom CSS file to override the default styling of the editor.
+### wm-filename
+Defines a filename for the editor file. This file is accessable for the compiler.
