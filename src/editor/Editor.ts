@@ -2,12 +2,11 @@ import { ILanguageFeatures, IPathSuggestion, ISuggestion } from "@werckmeister/l
 import { ActiveSourceDocument } from "./SourceDocumentImpl";
 import * as _ from 'lodash';
 
-declare const require;
-const CodeMirror = require("codemirror/lib/codemirror.js");
-require('codemirror/addon/hint/show-hint.js');
-require('codemirror/mode/lua/lua.js');
-require("./SheetMode");
-require("./ConductionsSheetMode");
+import CodeMirror from "codemirror";
+import "codemirror/addon/hint/show-hint.js";
+import "codemirror/mode/lua/lua.js";
+import "./SheetMode";
+import "./ConductionsSheetMode";
 
 export interface IMarker {
     /**
@@ -123,7 +122,7 @@ export class Editor {
     
         CodeMirror.commands.autocomplete = (cm) => {
             cm.showHint({
-                hint: CodeMirror.hint.wmAutoComplete,
+                hint: (CodeMirror.hint as any).wmAutoComplete,
                 container: this.element
             });
         };
@@ -192,7 +191,7 @@ export class Editor {
      * @param from 
      * @param to 
      */
-    private setMarker(from: DocumentIndex, to: DocumentIndex, className: string, attributes: object = undefined): IMarker {
+    private setMarker(from: DocumentIndex, to: DocumentIndex, className: string, attributes: { [name: string]: string } = undefined): IMarker {
         const begin = this.editor.posFromIndex(from);
         const end = this.editor.posFromIndex(to + 1);
         const marker = this.editor.markText(begin, end, { className, attributes });
@@ -205,7 +204,7 @@ export class Editor {
      * @param to 
      */
     setEventMarker(from: DocumentIndex, to: DocumentIndex): IMarker {
-        return this.setMarker(from, to, this.eventMarkClass, {"wm-doc-pos": from})
+        return this.setMarker(from, to, this.eventMarkClass, {"wm-doc-pos": String(from)})
     }
 
     /**

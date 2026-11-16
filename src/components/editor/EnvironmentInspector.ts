@@ -1,5 +1,5 @@
 import { EnvironmentType, IEnvironmentInspector, MidiDeviceInfo } from "@werckmeister/language-features/IEnvironmentInspector";
-import _ = require("lodash");
+import _ from "lodash";
 
 export const SoundFontRepoMap = {
     "FluidR3-GM": "https://raw.githubusercontent.com/werckme/soundfont-server/main/soundfonts/FluidR3_GM_EX/FluidR3_GM_EX.sf2.json",

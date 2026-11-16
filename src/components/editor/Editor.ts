@@ -4,18 +4,18 @@ import { LanguageFeatures } from '@werckmeister/language-features';
 import { fetchText } from '../../shared/http';
 import { WM_Compiler } from '../../Global';
 import { EnvironmentInspector } from './EnvironmentInspector';
+import editorCss from './editor.css';
+import editorHtml from './editor.html';
+import codemirrorBaseCss from 'codemirror/lib/codemirror.css';
+import codemirrorThemeCss from 'codemirror/theme/dracula.css';
+import codemirrorShowHintCss from 'codemirror/addon/hint/show-hint.css';
 const _ = require ('lodash');
 
 const environmentInspector = new EnvironmentInspector();
 
 declare const require;
-const fs = require('fs');
-const editorCss = fs.readFileSync('./src/components/editor/editor.css', 'utf8');
-const editorHtml = fs.readFileSync('./src/components/editor/editor.html', 'utf8');
 const CodemirrorTheme = "dracula";
-let codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
-codemirrorCss += fs.readFileSync('./node_modules/codemirror/theme/' + CodemirrorTheme + '.css', 'utf8');
-codemirrorCss += fs.readFileSync('./node_modules/codemirror/addon/hint/show-hint.css', 'utf8');
+const codemirrorCss = codemirrorBaseCss + codemirrorThemeCss + codemirrorShowHintCss;
 
 const additionalStyleId = "additional-style";
 
