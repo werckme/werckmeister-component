@@ -1,22 +1,20 @@
 {
+	// Type checking only (npm run typecheck); bundling is done by esbuild (build.mjs)
 	"compilerOptions": {
-		"watch": true,
-		"module": "commonjs",
-		"target": "es2015",
-		"outDir": "out",
-        "lib": [
-            "es2018",
-            "dom"
-          ],
-		"sourceMap": true,
-		"rootDir": "src",
-		"strict": false   /* enable all strict type-checking options */
-		/* Additional Checks */
-		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
+		"noEmit": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "es2018",
+		"lib": [
+			"es2018",
+			"dom"
+		],
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"strict": false
 	},
-	"exclude": [
-		"node_modules",
+	"include": [
+		"src"
 	]
 }

@@ -1,10 +1,9 @@
 import { Ticks } from "../shared/types";
 import { FileInfo, IFileSystemInspector, Path } from "@werckmeister/language-features";
+import werckmeisterAuxiliaryFiles from "@werckmeister/compilerjs/werckmeister-auxiliaries.json";
 
 declare const require
 const WerckmeisterFactory = require('@werckmeister/compilerjs/werckmeister');
-const fs = require('fs');
-const werckmeisterAuxiliaryFiles = JSON.parse(fs.readFileSync('./node_modules/@werckmeister/compilerjs/werckmeister-auxiliaries.json', 'utf8'));
 const _ = require ('lodash');
 
 interface FSNode {
@@ -227,6 +226,7 @@ export class WerckmeisterCompiler {
     }
 
     public async removeFileFromFS(path: string) {
+        const fs = (await this.module).FS;
         const info = fs.analyzePath(path, false);
         if (!info.exists) {
             throw new Error(`file "${path}" does not exist.`);

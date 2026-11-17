@@ -1,9 +1,10 @@
+// @werckmeister/midiplayer and @werckmeister/language-features are babel
+// builds that expect a global regeneratorRuntime (formerly from babel-polyfill).
+// Must stay the first import.
+import 'regenerator-runtime/runtime';
 import { Editor } from './components/editor/Editor';
 import { Snippet } from './components/snippet/Snippet';
 import { Workspace } from './components/workspace/Workspace';
-declare const require;
-require("babel-core/register");
-require("babel-polyfill");
 
 window.customElements.define('werckmeister-snippet', Snippet);
 window.customElements.define('werckmeister-workspace', Workspace);

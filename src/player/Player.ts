@@ -4,7 +4,7 @@ declare const require;
 import { Quarters } from "../shared/types";
 import * as _ from 'lodash';
 import { WerckmeisterMidiPlayer, PlayerState as MidiPlayerState, TaskVisitor } from '@werckmeister/midiplayer';
-import { IMidiEvent } from "werckmeister-midiplayer/IMidiEvent";
+import { IMidiEvent } from "@werckmeister/midiplayer/IMidiEvent";
 import { MidiEvent } from "../shared/midiEvent";
 import { PlayerState } from "../shared/player";
 import { IDeviceInfo, IWerckmeisterCompiledDocument } from "../compiler/Compiler";

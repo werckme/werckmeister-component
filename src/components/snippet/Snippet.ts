@@ -7,17 +7,17 @@ import { PlayerState } from '../../shared/player';
 import { singleSnippetTemplate, snippetTemplate } from './templates';
 import { fetchText } from '../../shared/http';
 import { kebabCase } from 'lodash';
+import snippetCss from './snippet.css';
+import snippetHtml from './snippet.html';
+import codemirrorBaseCss from 'codemirror/lib/codemirror.css';
+import codemirrorThemeCss from 'codemirror/theme/dracula.css';
 const _ = require ('lodash');
 
 const CodemirrorTheme = "dracula";
 const MainSheetFile = PlayerMainSheetFile;
 
 declare const require;
-const fs = require('fs');
-var codemirrorCss = fs.readFileSync('./node_modules/codemirror/lib/codemirror.css', 'utf8');
-codemirrorCss += fs.readFileSync('./node_modules/codemirror/theme/' + CodemirrorTheme + '.css', 'utf8');
-const snippetCss = fs.readFileSync('./src/components/snippet/snippet.css', 'utf8');
-const snippetHtml = fs.readFileSync('./src/components/snippet/snippet.html', 'utf8');
+const codemirrorCss = codemirrorBaseCss + codemirrorThemeCss;
 
 enum SnippetType {
 	/**

@@ -157,3 +157,31 @@ sets the style content to the underlying editor component
 Load a custom CSS file to override the default styling of the editor.
 ### wm-filename
 Defines a filename for the editor file. This file is accessable for the compiler.
+
+## Development
+
+Requires Node.js 22. The bundle is built with [esbuild](https://esbuild.github.io/) (`build.mjs`) into `dist/`.
+
+| Command | |
+|---|---|
+| `npm run serve` | dev server with rebuild on change: http://localhost:1234/test-snippet.html, http://localhost:1234/test-workspace.html |
+| `npm run watch` | rebuild `dist/` on change |
+| `npm run typecheck` | TypeScript type check |
+| `npm run deploy` | type check + production build, `dist/` is ready to publish |
+
+Releases are published to npm by CI on every push to `master` (`1.1.6-<run>`) or `develop`/`feature/*` (`1.1.10-dev-<run>`).
+
+### Testing local changes in werckmeister-online
+
+Link the local build into the frontend without touching its `package.json`/lockfile:
+
+```sh
+# werckmeister-component
+npm run watch
+
+# werckmeister-online/frontend
+npm install --no-save ../../werckmeister-component/dist
+npm start
+```
+
+Changes are picked up by `ng serve` on reload. A regular `npm install`/`npm ci` in the frontend switches back to the published version.

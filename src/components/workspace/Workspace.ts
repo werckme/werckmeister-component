@@ -5,12 +5,11 @@ import { IWerckmeisterCompiledDocument, ICompilerError, SheetEventInfo, ICompile
 import { PlayerState } from '../../shared/player';
 import { Editor } from '../editor/Editor';
 import { fetchText } from '../../shared/http';
+import editorCss from './workspace.css';
+import editorHtml from './workspace.html';
 const _ = require ('lodash');
 
 declare const require;
-const fs = require('fs');
-const editorCss = fs.readFileSync('./src/components/workspace/workspace.css', 'utf8');
-const editorHtml = fs.readFileSync('./src/components/workspace/workspace.html', 'utf8');
 
 const extraCssFilename = '_editor.css';
 
